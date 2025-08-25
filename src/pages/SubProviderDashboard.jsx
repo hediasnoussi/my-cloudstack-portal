@@ -682,7 +682,7 @@ const SubProviderDashboard = ({ onLogout }) => {
             <Button onClick={() => setDeleteDialogOpen(false)} variant="outlined">
               Annuler
             </Button>
-            <Button onClick={handleDeleteConfirm} variant="contained" color="error">
+            <Button onClick={handleDeleteConfirm} variant="contained" sx={{ bgcolor: '#6b7280', '&:hover': { bgcolor: '#4b5563' } }}>
               Supprimer
             </Button>
           </DialogActions>

@@ -2,54 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext.jsx';
-import RoleBasedAccess from '../RoleBasedAccess.jsx';
-import {
-  Box,
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-  Avatar,
-  Divider,
-  Toolbar,
-  Collapse,
-  Chip
-} from '@mui/material';
-import {
-  Dashboard as DashboardIcon,
-  Domain as DomainIcon,
-  People as PeopleIcon,
-  AccountBalance as AccountIcon,
-  Security as SecurityIcon,
-  Storage as ZoneIcon,
-  Cloud as ProjectIcon,
-  Cloud as CloudIcon,
-  Memory as ComputeIcon,
-  BugReport as TestIcon,
-  ExpandLess,
-  ExpandMore,
-  Cloud as InstanceIcon,
-  CameraAlt as SnapshotIcon,
-  Settings as KubernetesIcon,
-  ExpandMore as AutoscalingIcon,
-  Group as InstanceGroupIcon,
-  Key as SshKeyIcon,
-  Person as UserDataIcon,
-  Storage as StorageIcon,
-  NetworkCheck as NetworkIcon,
-  Image as ImageIcon,
-  Event as EventIcon,
-  Add as AddIcon,
-  Group as AffinityGroupIcon
-} from '@mui/icons-material';
 import LogoFocus from '../../assets/LogoFocus.png';
-
-const drawerWidth = 280;
-// Match login page dark blue gradient
-const SIDEBAR_BG = 'linear-gradient(to bottom right, #1F1540, #070920)';
 
 interface SidebarProps {
   open: boolean;
@@ -60,237 +13,219 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
-  const { isAgent } = useAuth();
-  const [expandedMenus, setExpandedMenus] = useState<string[]>(['Compute']);
+  const { isPartner, isUser } = useAuth();
+  const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
 
-  // Structure des menus avec sous-menus
+  // Structure des menus avec sous-menus - Style Argon Dashboard
   const menuStructure = [
     { 
       text: t('common.dashboard'), 
-      icon: <DashboardIcon />, 
+      icon: 'ni ni-tv-2', 
       path: '/dashboard',
+      color: 'text-gray-500',
       subItems: []
     },
     { 
       text: t('common.createNewInstance'), 
-      icon: <AddIcon />, 
+      icon: 'ni ni-fat-add', 
       path: '/create-instance',
+      color: 'text-gray-500',
       subItems: []
     },
     {
       text: t('common.compute'),
-      icon: <ComputeIcon />,
+      icon: 'ni ni-app',
+      color: 'text-gray-500',
       path: '/compute',
       subItems: [
-        { text: t('common.instances'), icon: <InstanceIcon />, path: '/compute/instances' },
-        { text: t('common.instanceSnapshots'), icon: <SnapshotIcon />, path: '/compute/snapshots' },
-        // { text: 'Kubernetes', icon: <KubernetesIcon />, path: '/compute/kubernetes' },
-        // { text: 'Autoscaling Groups', icon: <AutoscalingIcon />, path: '/compute/autoscaling' },
-        { text: t('common.instanceGroups'), icon: <InstanceGroupIcon />, path: '/compute/groups' },
-        { text: t('common.sshKeyPairs'), icon: <SshKeyIcon />, path: '/compute/ssh-keys' },
-        { text: t('common.userData'), icon: <UserDataIcon />, path: '/compute/user-data' }
+        { text: t('common.instances'), icon: 'fas fa-server', path: '/compute/instances', color: 'text-gray-500' },
+        { text: t('common.instanceSnapshots'), icon: 'fas fa-camera', path: '/compute/snapshots', color: 'text-gray-500' },
+        { text: t('common.instanceGroups'), icon: 'fas fa-layer-group', path: '/compute/groups', color: 'text-gray-500' },
+        { text: t('common.sshKeyPairs'), icon: 'fas fa-key', path: '/compute/ssh-keys', color: 'text-gray-500' },
+        { text: t('common.userData'), icon: 'fas fa-user-cog', path: '/compute/user-data', color: 'text-gray-500' }
       ]
     },
     {
       text: t('common.storage'),
-      icon: <StorageIcon />,
+      icon: 'ni ni-archive-2',
+      color: 'text-gray-500',
       path: '/storage',
       subItems: [
-        { text: t('common.volumes'), icon: <StorageIcon />, path: '/storage/volumes' },
-        { text: t('common.volumeSnapshots'), icon: <SnapshotIcon />, path: '/storage/snapshots' },
-        { text: t('common.backups'), icon: <StorageIcon />, path: '/storage/backups' },
-        // { text: 'Buckets', icon: <StorageIcon />, path: '/storage/buckets' },
-        // { text: 'Shared FileSystem', icon: <StorageIcon />, path: '/storage/filesystem' }
+        { text: t('common.volumes'), icon: 'fas fa-hdd', path: '/storage/volumes', color: 'text-gray-500' },
+        { text: t('common.volumeSnapshots'), icon: 'fas fa-clone', path: '/storage/snapshots', color: 'text-gray-500' },
+        { text: t('common.backups'), icon: 'fas fa-shield-alt', path: '/storage/backups', color: 'text-gray-500' }
       ]
     },
     {
       text: t('common.network'),
-      icon: <NetworkIcon />,
+      icon: 'ni ni-world-2',
+      color: 'text-gray-500',
       path: '/network',
       subItems: [
-        { text: t('common.networks'), icon: <NetworkIcon />, path: '/network/networks' },
-        { text: t('common.publicIps'), icon: <NetworkIcon />, path: '/network/public-ips' },
-        { text: t('common.vpc'), icon: <NetworkIcon />, path: '/network/vpc' },
-        { text: t('common.securityGroups'), icon: <NetworkIcon />, path: '/network/security-groups' },
-        // { text: 'LoadBalancers', icon: <NetworkIcon />, path: '/network/load-balancers' }
+        { text: t('common.networks'), icon: 'fas fa-network-wired', path: '/network/networks', color: 'text-gray-500' },
+        { text: t('common.publicIps'), icon: 'fas fa-globe', path: '/network/public-ips', color: 'text-gray-500' },
+        { text: t('common.vpc'), icon: 'fas fa-cloud', path: '/network/vpc', color: 'text-gray-500' },
+        { text: t('common.securityGroups'), icon: 'fas fa-shield-alt', path: '/network/security-groups', color: 'text-gray-500' }
       ]
     },
     {
       text: t('common.images'),
-      icon: <ImageIcon />,
+      icon: 'ni ni-image',
+      color: 'text-gray-500',
       path: '/images',
       subItems: [
-        { text: t('common.templates'), icon: <ImageIcon />, path: '/images/templates' },
-        { text: t('common.isos'), icon: <ImageIcon />, path: '/images/isos' }
+        { text: t('common.templates'), icon: 'fas fa-copy', path: '/images/templates', color: 'text-gray-500' },
+        { text: t('common.isos'), icon: 'fas fa-compact-disc', path: '/images/isos', color: 'text-gray-500' }
       ]
     },
     {
       text: t('common.events'),
-      icon: <EventIcon />,
+      icon: 'ni ni-calendar-grid-58',
+      color: 'text-gray-500',
       path: '/events',
       subItems: [
-        { text: t('common.logs'), icon: <EventIcon />, path: '/events/logs' }
+        { text: t('common.logs'), icon: 'fas fa-clipboard-list', path: '/events/logs', color: 'text-gray-500' }
       ]
     }
   ];
 
-  const filteredMenuStructure = isAgent() 
-    ? menuStructure.filter((item) => ['Dashboard', t('common.dashboard'), t('common.createNewInstance')].includes(item.text))
-    : menuStructure;
-
-  const handleNavigation = (path: string) => {
-    navigate(path);
-  };
-
-  const handleMenuToggle = (menuText: string) => {
-    setExpandedMenus((prev) =>
-      prev.includes(menuText) ? prev.filter((m) => m !== menuText) : [...prev, menuText]
-    );
-  };
+  // Filtre les menus selon les permissions
+  let filteredMenuStructure;
+  
+  if (isUser()) {
+    // Sidebar simplifiée pour les utilisateurs finaux
+    filteredMenuStructure = [
+      { 
+        text: t('common.dashboard'), 
+        icon: 'ni ni-tv-2', 
+        path: '/user-dashboard',
+        color: 'text-gray-500',
+        subItems: []
+      },
+      { 
+        text: 'Mes VPS', 
+        icon: 'fas fa-server', 
+        path: '/user-dashboard#vps',
+        color: 'text-gray-500',
+        subItems: []
+      },
+      { 
+        text: 'Facturation', 
+        icon: 'fas fa-credit-card', 
+        path: '/user-dashboard#billing',
+        color: 'text-gray-500',
+        subItems: []
+      },
+      { 
+        text: 'Support', 
+        icon: 'fas fa-headset', 
+        path: '/user-dashboard#support',
+        color: 'text-gray-500',
+        subItems: []
+      }
+    ];
+  } else if (isPartner()) {
+    // Sidebar limitée pour les partenaires
+    filteredMenuStructure = menuStructure.filter((item) => ['Dashboard', t('common.dashboard'), t('common.createNewInstance')].includes(item.text));
+  } else {
+    // Sidebar complète pour admin et subprovider
+    filteredMenuStructure = menuStructure;
+  }
 
   const renderMenuItem = (menu: any, level: number = 0) => {
     const hasSubItems = menu.subItems && menu.subItems.length > 0;
+    const isActive = location.pathname === menu.path || 
+                    (hasSubItems && menu.subItems.some((sub: any) => location.pathname === sub.path));
     const isExpanded = expandedMenus.includes(menu.text);
-    const isActive = location.pathname === menu.path || (hasSubItems && location.pathname.startsWith(menu.path));
+
+    const handleMenuClick = () => {
+      if (hasSubItems) {
+        setExpandedMenus(prev => 
+          prev.includes(menu.text) 
+            ? prev.filter(item => item !== menu.text)
+            : [...prev, menu.text]
+        );
+      } else {
+        navigate(menu.path);
+        if (onClose) onClose();
+      }
+    };
 
     return (
-      <Box key={menu.text}>
-        <ListItem disablePadding>
-          <ListItemButton
-            sx={{
-              borderRadius: 2,
-              mb: 1,
-              pl: level * 2 + 2,
-              pr: 2,
-              py: 1.5,
-              backgroundColor: isActive ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
-              border: isActive ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid transparent',
-              '&:hover': {
-                backgroundColor: isActive ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)',
-                border: isActive ? '1px solid rgba(255, 255, 255, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
-              },
-              transition: 'all 0.2s ease-in-out',
-            }}
-            onClick={() => {
-              if (hasSubItems) {
-                handleMenuToggle(menu.text);
-              } else {
-                handleNavigation(menu.path);
-              }
-            }}
-          >
-            <ListItemIcon sx={{ 
-              color: isActive ? 'white' : 'rgba(255, 255, 255, 0.8)',
-              minWidth: 40,
-              fontSize: '1.2rem'
-            }}>
-              {menu.icon}
-            </ListItemIcon>
-            <ListItemText 
-              primary={menu.text}
-              sx={{
-                '& .MuiListItemText-primary': {
-                  color: isActive ? 'white' : 'rgba(255, 255, 255, 0.9)',
-                  fontWeight: isActive ? 600 : 500,
-                  fontSize: level > 0 ? '0.875rem' : '0.95rem',
-                  letterSpacing: '0.5px'
-                }
-              }}
-            />
+      <li key={menu.text} className={`mt-0.5 w-full ${level > 0 ? 'ml-4' : ''}`}>
+        <a
+          onClick={handleMenuClick}
+          className={`cursor-pointer py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors ${
+            isActive 
+              ? 'bg-blue-500/13 dark:text-white dark:opacity-80 font-semibold text-slate-700 rounded-lg' 
+              : 'dark:text-white dark:opacity-80 hover:bg-blue-500/5 rounded-lg'
+          }`}
+        >
+          <div className="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
+            <i className={`relative top-0 text-sm leading-normal ${menu.color} ${menu.icon}`}></i>
+          </div>
+          <span className="ml-1 duration-300 opacity-100 pointer-events-none ease">{menu.text}</span>
             {hasSubItems && (
-              <Box sx={{ 
-                color: isActive ? 'white' : 'rgba(255, 255, 255, 0.8)',
-                transition: 'transform 0.2s ease-in-out',
-                transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
-              }}>
-                <ExpandMore />
-              </Box>
-            )}
-          </ListItemButton>
-        </ListItem>
+            <i className={`ml-auto transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''} fas fa-chevron-down text-xs`}></i>
+          )}
+        </a>
         
         {hasSubItems && menu.subItems && (
-          <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding sx={{ pl: 2 }}>
+          <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+            <ul className="flex flex-col pl-0 mb-0">
               {menu.subItems.map((subItem: any) => renderMenuItem(subItem, level + 1))}
-            </List>
-          </Collapse>
+            </ul>
+          </div>
         )}
-      </Box>
+      </li>
     );
   };
 
-  const drawer = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', background: SIDEBAR_BG }}>
-      <Toolbar sx={{ 
-        minHeight: '100px !important',
-        background: SIDEBAR_BG,
-        borderBottom: '1px solid rgba(255, 255, 255, 0.2)'
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-          <img src={LogoFocus} alt="Focus" style={{ width: 300, height: 'auto' }} />
-        </Box>
-      </Toolbar>
-      
-      <Box sx={{ 
-        p: 2, 
-        background: 'rgba(255, 255, 255, 0.05)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
-      }}>
-        <Chip 
-          label={t('sidebar.version')} 
-          size="small" 
-          sx={{ 
-            bgcolor: 'rgba(255, 255, 255, 0.2)', 
-            color: 'white',
-            fontWeight: 600,
-            fontSize: '0.7rem'
-          }} 
-        />
-      </Box>
-      
-      <Box sx={{ flex: 1, overflow: 'auto', py: 2, background: SIDEBAR_BG }}>
-        <List sx={{ px: 2 }}>
-          {filteredMenuStructure.map((menu) => renderMenuItem(menu))}
-        </List>
-      </Box>
-      
-      <Box sx={{ 
-        p: 2, 
-        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-        background: SIDEBAR_BG
-      }}>
-        <Typography variant="caption" sx={{ 
-          color: 'rgba(255, 255, 255, 0.7)',
-          fontSize: '0.7rem',
-          textAlign: 'center',
-          display: 'block'
-        }}>
-          {t('sidebar.copyright')}
-        </Typography>
-      </Box>
-    </Box>
-  );
-
   return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width: drawerWidth,
-          boxSizing: 'border-box',
-          borderRight: '1px solid rgba(255, 255, 255, 0.2)',
-          background: SIDEBAR_BG,
-          boxShadow: '4px 0 12px rgba(0, 0, 0, 0.2)',
-        }
-      }}
-      open={open}
-      onClose={onClose}
-    >
-      {drawer}
-    </Drawer>
+    <aside className="fixed inset-y-0 flex-wrap items-center justify-between block w-full p-0 my-4 overflow-y-auto antialiased transition-transform duration-200 bg-white border-0 shadow-xl dark:shadow-none dark:bg-slate-850 max-w-64 ease-nav-brand z-990 xl:ml-6 rounded-2xl xl:left-0 xl:translate-x-0">
+      {/* Logo et en-tête */}
+      <div className="h-32 flex items-center justify-center">
+        <div className="block py-6 m-0 text-center">
+          <img src={LogoFocus} className="inline h-full max-w-full transition-all duration-200 dark:hidden ease-nav-brand max-h-28" alt="main_logo" />
+          <img src={LogoFocus} className="hidden h-full max-w-full transition-all duration-200 dark:inline ease-nav-brand max-h-28" alt="main_logo" />
+        </div>
+      </div>
+
+      <hr className="h-px mt-0 bg-transparent bg-gradient-to-r from-transparent via-black/40 to-transparent dark:bg-gradient-to-r dark:from-transparent dark:via-white dark:to-transparent" />
+
+      {/* Menu principal */}
+      <div className="items-center block w-auto max-h-screen overflow-auto h-sidenav grow basis-full">
+        <ul className="flex flex-col pl-0 mb-0">
+          {filteredMenuStructure.map((menu) => renderMenuItem(menu))}
+        </ul>
+      </div>
+
+      {/* Bouton de déconnexion */}
+      <div className="mx-4 mt-4">
+        <button
+          onClick={() => {
+            // Rediriger vers la page de login
+            navigate('/login');
+            // Optionnel : nettoyer le localStorage ou autre
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+          }}
+          className="w-full flex items-center justify-center px-4 py-3 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors duration-200 ease-in-out"
+        >
+          <i className="fas fa-sign-out-alt mr-2"></i>
+          Déconnexion
+        </button>
+      </div>
+
+      {/* Footer */}
+      <div className="mx-4 mt-auto">
+        <div className="block px-8 py-6 text-sm whitespace-nowrap dark:text-white text-slate-700">
+          <div className="text-xs text-slate-400 dark:text-slate-500">
+            {t('sidebar.version')} v2.0.1
+          </div>
+        </div>
+      </div>
+    </aside>
   );
 };
 

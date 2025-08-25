@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   AppBar,
   Box,
@@ -55,6 +56,7 @@ import MainCard from "../components/MainCard";
 const drawerWidth = 280;
 
 const DashboardClient = ({ onLogout }) => {
+  const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [vmList, setVmList] = useState([
     { id: 1, name: "VM-001", status: "Running", cpu: 2, ram: 4096, color: "success" },
@@ -65,11 +67,50 @@ const DashboardClient = ({ onLogout }) => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedVM, setSelectedVM] = useState(null);
-  const [editFormData, setEditFormData] = useState({ name: "", cpu: "", ram: "" });
+  const [editFormData] = useState({ name: "", cpu: "", ram: "" });
   const [formError, setFormError] = useState("");
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [menuVM, setMenuVM] = useState(null);
+
+  // État pour l'instance créée
+  const [newlyCreatedInstance, setNewlyCreatedInstance] = useState(null);
+  const [showInstanceDetails, setShowInstanceDetails] = useState(false);
+
+  // Récupérer les informations de l'instance créée depuis la navigation
+  useEffect(() => {
+    if (location.state?.vpsCreated) {
+      const instanceInfo = {
+        name: location.state.vpsName || 'Nouveau VPS',
+        template: location.state.template || 'Template par défaut',
+        computeOffering: location.state.computeOffering || 'Offre par défaut',
+        startInstance: location.state.startInstance || false,
+        createdAt: new Date().toLocaleString('fr-FR'),
+        status: location.state.startInstance ? 'Démarrage...' : 'Arrêtée'
+      };
+      
+      setNewlyCreatedInstance(instanceInfo);
+      setShowInstanceDetails(true);
+      
+      // Ajouter l'instance à la liste des VMs
+      const newVM = {
+        id: vmList.length + 1,
+        name: instanceInfo.name,
+        status: instanceInfo.startInstance ? 'Starting' : 'Stopped',
+        cpu: 2, // Valeur par défaut
+        ram: 4096, // Valeur par défaut
+        color: instanceInfo.startInstance ? 'warning' : 'error'
+      };
+      
+      setVmList(prevList => [...prevList, newVM]);
+      
+      // Afficher un message de succès
+      showSnackbar(`Instance "${instanceInfo.name}" créée avec succès!`, "success");
+      
+      // Nettoyer le state de navigation
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -182,6 +223,11 @@ const DashboardClient = ({ onLogout }) => {
 
   const handleSnackbarClose = () => {
     setSnackbar({ ...snackbar, open: false });
+  };
+
+  const handleCloseInstanceDetails = () => {
+    setShowInstanceDetails(false);
+    setNewlyCreatedInstance(null);
   };
 
   const drawer = (
@@ -350,6 +396,97 @@ const DashboardClient = ({ onLogout }) => {
         }}
       >
         <Container maxWidth="xl">
+          {/* Affichage des détails de l'instance créée */}
+          {showInstanceDetails && newlyCreatedInstance && (
+            <MainCard 
+              title={`🎉 Instance "${newlyCreatedInstance.name}" créée avec succès!`}
+              sx={{ 
+                mb: 3, 
+                border: '2px solid #4caf50',
+                backgroundColor: '#f8fff8'
+              }}
+            >
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                  <Card sx={{ p: 2, backgroundColor: '#f0f8f0' }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#2e7d32' }}>
+                      Détails de l'instance
+                    </Typography>
+                    <Box sx={{ display: 'grid', gap: 1 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant="body2" color="textSecondary">Nom:</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>{newlyCreatedInstance.name}</Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant="body2" color="textSecondary">Template:</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>{newlyCreatedInstance.template}</Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant="body2" color="textSecondary">Offre de calcul:</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>{newlyCreatedInstance.computeOffering}</Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant="body2" color="textSecondary">Statut:</Typography>
+                        <Chip 
+                          label={newlyCreatedInstance.status} 
+                          color={newlyCreatedInstance.startInstance ? 'warning' : 'default'}
+                          size="small"
+                        />
+                      </Box>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant="body2" color="textSecondary">Créée le:</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>{newlyCreatedInstance.createdAt}</Typography>
+                      </Box>
+                    </Box>
+                  </Card>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Card sx={{ p: 2, backgroundColor: '#fff8f0' }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#f57c00' }}>
+                      Actions rapides
+                    </Typography>
+                    <Box sx={{ display: 'grid', gap: 2 }}>
+                      <Button
+                        variant="contained"
+                        startIcon={<PlayIcon />}
+                        fullWidth
+                        color="success"
+                        disabled={!newlyCreatedInstance.startInstance}
+                      >
+                        {newlyCreatedInstance.startInstance ? 'Démarrer l\'instance' : 'Instance en cours de démarrage...'}
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        startIcon={<MonitorIcon />}
+                        fullWidth
+                        color="primary"
+                      >
+                        Accéder à la console
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        startIcon={<CameraIcon />}
+                        fullWidth
+                        color="secondary"
+                      >
+                        Créer un snapshot
+                      </Button>
+                    </Box>
+                  </Card>
+                </Grid>
+              </Grid>
+              <Box sx={{ mt: 3, textAlign: 'center' }}>
+                <Button
+                  variant="outlined"
+                  onClick={handleCloseInstanceDetails}
+                  startIcon={<CloseIcon />}
+                >
+                  Fermer ce message
+                </Button>
+              </Box>
+            </MainCard>
+          )}
+
           <MainCard title="Your Virtual Machines">
             <Grid container spacing={3}>
               {vmList.map((vm) => (
@@ -814,7 +951,7 @@ const DashboardClient = ({ onLogout }) => {
           <Button onClick={() => setDeleteDialogOpen(false)} variant="outlined">
             Annuler
           </Button>
-          <Button onClick={handleDeleteConfirm} variant="contained" color="error">
+          <Button onClick={handleDeleteConfirm} variant="contained" sx={{ bgcolor: '#6b7280', '&:hover': { bgcolor: '#4b5563' } }}>
             Supprimer
           </Button>
         </DialogActions>

@@ -212,7 +212,7 @@ const Networks = () => {
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1">
+        <Typography variant="h4" component="h1" sx={{ color: 'white' }}>
           Gestion des Réseaux
         </Typography>
         <Box>

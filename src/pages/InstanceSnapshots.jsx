@@ -202,8 +202,8 @@ const InstanceSnapshots = () => {
     <Box>
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700, color: '#1e293b' }}>
-          {t('snapshots.title')}
+        <Typography variant="h4" sx={{ fontWeight: 700, color: 'white' }}>
+          {t('instanceSnapshots.title')}
         </Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Button

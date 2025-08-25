@@ -36,19 +36,18 @@ import {
 import { Checkbox } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext.jsx';
 
 const CreateInstance = () => {
   const { t } = useTranslation();
-  const { isAgent } = useAuth();
+  const { isPartner, user } = useAuth();
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState({
-    // Étape 1: Template/ISO
-    templateType: 'templates', // 'templates' ou 'isos'
+    // Étape 1: Template
+    templateType: 'templates', // 'templates'
     templateCategory: 'featured', // 'featured', 'community', 'my-templates', 'shared'
     selectedTemplate: '',
-    selectedIso: '',
     overrideDiskSize: false,
     customDiskSize: '',
     
@@ -58,23 +57,21 @@ const CreateInstance = () => {
     // Étape 3: Disk size
     diskSize: '',
     
-    // Étape 4: Networks
-    networks: '',
-    
-    // Étape 5: SSH key pairs
-    sshKeyPairs: '',
-    
-    // Étape 6: Details
+    // Étape 4: Details
     name: '',
     group: '',
     keyboardLanguage: '',
-    startInstance: true
+    startInstance: true,
+    
+    // Étape 4: Options de sauvegarde
+    premiumBackup: false,
+    snapshotBackup: false
   });
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   // Étapes selon le rôle
   const getSteps = () => {
-    if (isAgent()) {
+    if (isPartner()) {
       // Pour les agents : VPS name, Template, Compute offering
       return [
         {
@@ -88,10 +85,14 @@ const CreateInstance = () => {
         {
           label: t('createInstance.step2'),
           icon: <SettingsIcon />
+        },
+        {
+          label: 'Choisissez vos options',
+          icon: <SettingsIcon />
         }
       ];
     } else {
-      // Pour les subproviders : VPS name en premier, puis Templates/ISO, Compute, Réseaux, Clés SSH
+      // Pour les subproviders : VPS name en premier, puis Template, Compute
       return [
         {
           label: t('createInstance.vpsName'),
@@ -106,11 +107,7 @@ const CreateInstance = () => {
           icon: <SettingsIcon />
         },
         {
-          label: t('createInstance.step4'),
-          icon: <NetworkIcon />
-        },
-        {
-          label: t('createInstance.step5'),
+          label: 'Choisissez vos options',
           icon: <SettingsIcon />
         }
       ];
@@ -129,7 +126,7 @@ const CreateInstance = () => {
 
   const handleSubmit = async () => {
     try {
-      if (!formData.selectedTemplate && !formData.selectedIso) {
+      if (!formData.selectedTemplate) {
         setSnackbar({ open: true, message: t('createInstance.templateOrIsoRequired'), severity: 'error' });
         return;
       }
@@ -137,19 +134,17 @@ const CreateInstance = () => {
       setSnackbar({ open: true, message: t('createInstance.instanceCreatedSuccess'), severity: 'success' });
       
       setTimeout(() => {
-        if (isAgent()) {
-          navigate('/dashboard', { 
-            state: { 
-              vpsCreated: true,
-              vpsName: formData.name,
-              template: formData.selectedTemplate || 'Default Template',
-              computeOffering: formData.computeOffering || 'Small Instance',
-              startInstance: formData.startInstance
-            }
-          });
-        } else {
-          navigate('/compute/instances');
-        }
+        // Redirection vers le dashboard pour tous les utilisateurs avec les informations du VPS créé
+        navigate('/dashboard', { 
+          state: { 
+            vpsCreated: true,
+            vpsName: formData.name,
+            template: formData.selectedTemplate || 'Default Template',
+            computeOffering: formData.computeOffering || 'Small Instance',
+            startInstance: formData.startInstance,
+            owner: user?.username // Ajouter le propriétaire du VPS
+          }
+        });
       }, 2000);
 
     } catch (err) {
@@ -158,15 +153,17 @@ const CreateInstance = () => {
   };
 
   const renderStepContent = (step: number) => {
-    if (isAgent()) {
+    if (isPartner()) {
       // Mapping des étapes pour les agents
       switch (step) {
         case 0: // VPS name
           return renderVpsNameStep();
-        case 1: // Template/ISO
+        case 1: // Template
           return renderTemplateStep();
         case 2: // Compute offering
           return renderComputeOfferingStep();
+        case 3: // Options
+          return renderOptionsStep();
         default:
           return null;
       }
@@ -175,14 +172,12 @@ const CreateInstance = () => {
       switch (step) {
         case 0: // VPS name
           return renderVpsNameStep();
-        case 1: // Template/ISO
+        case 1: // Template
           return renderTemplateStep();
         case 2: // Compute offering
           return renderComputeOfferingStep();
-        case 3: // Networks
-          return renderNetworksStep();
-        case 4: // SSH key pairs
-          return renderSshKeyPairsStep();
+        case 3: // Options
+          return renderOptionsStep();
         default:
           return null;
       }
@@ -194,10 +189,10 @@ const CreateInstance = () => {
       <Box>
         {/* Step Header */}
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h5" sx={{ fontWeight: 600, color: '#1e293b', mb: 1 }}>
-            {isAgent() ? t('createInstance.templates') : t('createInstance.step1')}
+          <Typography variant="h5" sx={{ fontWeight: 600, color: 'white', mb: 1 }}>
+            {isPartner() ? t('createInstance.templates') : t('createInstance.step1')}
           </Typography>
-          <Typography variant="body1" color="textSecondary">
+          <Typography variant="body1" sx={{ color: 'white' }}>
             {t('createInstance.templateDescription')}
           </Typography>
         </Box>
@@ -228,7 +223,7 @@ const CreateInstance = () => {
 
           {/* Template Options */}
           <Box sx={{ mt: 3 }}>
-            {isAgent() ? (
+            {isPartner() ? (
               // Template options for agents
               <Box>
                 <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
@@ -400,11 +395,12 @@ const CreateInstance = () => {
   const renderComputeOfferingStep = () => {
     return (
       <Box>
+        {/* Step Header */}
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h5" sx={{ fontWeight: 600, color: '#1e293b', mb: 1 }}>
+          <Typography variant="h5" sx={{ fontWeight: 600, color: 'white', mb: 1 }}>
             {t('createInstance.step2')}
           </Typography>
-          <Typography variant="body1" color="textSecondary">
+          <Typography variant="body1" sx={{ color: 'white' }}>
             {t('createInstance.selectComputeOffering')}
           </Typography>
         </Box>
@@ -543,14 +539,97 @@ const CreateInstance = () => {
     );
   };
 
-  const renderVpsNameStep = () => {
+  const renderOptionsStep = () => {
     return (
       <Box>
         <Box sx={{ mb: 4 }}>
           <Typography variant="h5" sx={{ fontWeight: 600, color: '#1e293b', mb: 1 }}>
-            {t('createInstance.vpsName')}
+            Choisissez vos options
           </Typography>
           <Typography variant="body1" color="textSecondary">
+            Sélectionnez les options de sauvegarde pour votre VPS
+          </Typography>
+        </Box>
+
+        {/* Information Banner */}
+        <Box sx={{ 
+          mb: 4, 
+          p: 3, 
+          bgcolor: '#dbeafe', 
+          borderRadius: 2,
+          border: '1px solid #93c5fd'
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+            <Box sx={{ 
+              width: 20, 
+              height: 20, 
+              borderRadius: '50%', 
+              bgcolor: '#3b82f6', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '14px',
+              fontWeight: 'bold'
+            }}>
+              i
+            </Box>
+            <Typography variant="body2" color="#1e40af">
+              La sauvegarde automatique est une fonctionnalité incluse avec votre achat de VPS ! Ainsi, vos données sont protégées quotidiennement sans effort et peuvent être facilement restaurées en cas de problème.
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Backup Options */}
+        <Box sx={{ display: 'grid', gap: 3 }}>
+          {/* Option 1: Sauvegarde automatique Premium */}
+          <Card variant="outlined" sx={{ p: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Checkbox
+                checked={formData.premiumBackup}
+                onChange={(e) => setFormData({ ...formData, premiumBackup: e.target.checked })}
+              />
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, color: '#1e40b2', mb: 1 }}>
+                  Sauvegarde automatique Premium
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  Votre sauvegarde personnalisée, avec une restauration roulante de 7 jours.
+                </Typography>
+              </Box>
+            </Box>
+          </Card>
+
+          {/* Option 2: Snapshot backup */}
+          <Card variant="outlined" sx={{ p: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Checkbox
+                checked={formData.snapshotBackup}
+                onChange={(e) => setFormData({ ...formData, snapshotBackup: e.target.checked })}
+              />
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, color: '#1e40b2', mb: 1 }}>
+                  Snapshot backup
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  Créez une image de votre serveur quand vous le souhaitez. Simple d'utilisation, il vous permet de restaurer et sécuriser rapidement votre VPS avant d'effectuer tout changement.
+                </Typography>
+              </Box>
+            </Box>
+          </Card>
+        </Box>
+      </Box>
+    );
+  };
+
+  const renderVpsNameStep = () => {
+    return (
+      <Box>
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h5" sx={{ fontWeight: 600, color: 'white', mb: 1 }}>
+            {t('createInstance.vpsName')}
+          </Typography>
+          <Typography variant="body1" sx={{ color: 'white' }}>
             {t('createInstance.configureVpsName')}
           </Typography>
         </Box>
@@ -582,10 +661,10 @@ const CreateInstance = () => {
     return (
       <Box>
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h5" sx={{ fontWeight: 600, color: '#1e293b', mb: 1 }}>
+          <Typography variant="h5" sx={{ fontWeight: 600, color: 'white', mb: 1 }}>
             {t('createInstance.step3')}
           </Typography>
-          <Typography variant="body1" color="textSecondary">
+          <Typography variant="body1" sx={{ color: 'white' }}>
             {t('createInstance.selectDiskSize')}
           </Typography>
         </Box>
@@ -615,66 +694,18 @@ const CreateInstance = () => {
     );
   };
 
-  const renderNetworksStep = () => {
-    return (
-      <Box>
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h5" sx={{ fontWeight: 600, color: '#1e293b', mb: 1 }}>
-            {t('createInstance.step4')}
-          </Typography>
-          <Typography variant="body1" color="textSecondary">
-            {t('createInstance.selectNetworks')}
-          </Typography>
-        </Box>
 
-        <FormControl component="fieldset">
-          <RadioGroup
-            value={formData.networks}
-            onChange={(e) => setFormData({ ...formData, networks: e.target.value })}
-          >
-            <FormControlLabel value="default" control={<Radio />} label="Default Network" />
-            <FormControlLabel value="vpc" control={<Radio />} label="VPC Network" />
-            <FormControlLabel value="isolated" control={<Radio />} label="Isolated Network" />
-          </RadioGroup>
-        </FormControl>
-      </Box>
-    );
-  };
 
-  const renderSshKeyPairsStep = () => {
-    return (
-      <Box>
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h5" sx={{ fontWeight: 600, color: '#1e293b', mb: 1 }}>
-            {t('createInstance.step5')}
-          </Typography>
-          <Typography variant="body1" color="textSecondary">
-            {t('createInstance.selectSshKeyPairs')}
-          </Typography>
-        </Box>
 
-        <FormControl component="fieldset">
-          <RadioGroup
-            value={formData.sshKeyPairs}
-            onChange={(e) => setFormData({ ...formData, sshKeyPairs: e.target.value })}
-          >
-            <FormControlLabel value="none" control={<Radio />} label={t('createInstance.notSelected')} />
-            <FormControlLabel value="key1" control={<Radio />} label="SSH Key 1" />
-            <FormControlLabel value="key2" control={<Radio />} label="SSH Key 2" />
-          </RadioGroup>
-        </FormControl>
-      </Box>
-    );
-  };
 
   const renderDetailsStep = () => {
     return (
       <Box>
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h5" sx={{ fontWeight: 600, color: '#1e293b', mb: 1 }}>
+          <Typography variant="h5" sx={{ fontWeight: 600, color: 'white', mb: 1 }}>
             {t('createInstance.step6')}
           </Typography>
-          <Typography variant="body1" color="textSecondary">
+          <Typography variant="body1" sx={{ color: 'white' }}>
             {t('createInstance.configureFinalDetails')}
           </Typography>
         </Box>
@@ -726,10 +757,10 @@ const CreateInstance = () => {
     <Box sx={{ maxWidth: 1200, margin: '0 auto', p: 3 }}>
       {/* Header */}
       <Box sx={{ mb: 4, textAlign: 'center' }}>
-                 <Typography variant="h4" component="h1" sx={{ fontWeight: 600, color: '#1e293b' }}>
+                 <Typography variant="h4" component="h1" sx={{ fontWeight: 600, color: 'white' }}>
            {t('createInstance.title')}
          </Typography>
-         <Typography variant="body1" color="textSecondary" sx={{ mt: 1 }}>
+         <Typography variant="body1" sx={{ mt: 1, color: 'white' }}>
            {t('createInstance.configureStepByStep')}
          </Typography>
       </Box>
@@ -739,7 +770,7 @@ const CreateInstance = () => {
         {/* Left Side - Stepper */}
         <Box sx={{ flex: '0 0 300px' }}>
           <Paper sx={{ p: 3, position: 'sticky', top: 20 }}>
-                         <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
+                         <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: 'white' }}>
                {t('createInstance.configurationSteps')}
              </Typography>
                          <Stepper activeStep={activeStep} orientation="vertical">
@@ -802,7 +833,7 @@ const CreateInstance = () => {
                    sx={{ minWidth: 120 }}
                  >
                    {activeStep === steps.length - 1 
-                     ? (isAgent() ? t('createInstance.launchVps') : t('createInstance.launchInstance'))
+                     ? (isPartner() ? t('createInstance.launchVps') : t('createInstance.launchInstance'))
                      : t('common.next')
                    }
                  </Button>

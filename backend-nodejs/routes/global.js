@@ -1,33 +1,50 @@
 const express = require('express');
 const router = express.Router();
-const globalController = require('../controllers/globalController');
 
-// ===== DOMAINS ROUTES =====
-router.get('/domains', globalController.getAllDomains);
-router.get('/domains/:id', globalController.getDomainById);
-router.post('/domains', globalController.createDomain);
-router.put('/domains/:id', globalController.updateDomain);
-router.delete('/domains/:id', globalController.deleteDomain);
+// Endpoint pour les domaines
+router.get('/domains', (req, res) => {
+  res.json({
+    success: true,
+    data: [
+      { id: 1, name: 'focustechnology.com', status: 'active', description: 'Domaine principal' },
+      { id: 2, name: 'cloud.focustechnology.com', status: 'active', description: 'Sous-domaine cloud' }
+    ]
+  });
+});
 
-// ===== ROLES ROUTES =====
-router.get('/roles', globalController.getAllRoles);
-router.get('/roles/:id', globalController.getRoleById);
-router.post('/roles', globalController.createRole);
-router.put('/roles/:id', globalController.updateRole);
-router.delete('/roles/:id', globalController.deleteRole);
+// Endpoint pour les rôles
+router.get('/roles', (req, res) => {
+  res.json({
+    success: true,
+    data: [
+      { id: 1, name: 'admin', description: 'Administrateur système' },
+      { id: 2, name: 'user', description: 'Utilisateur standard' },
+      { id: 3, name: 'subprovider', description: 'Fournisseur secondaire' },
+      { id: 4, name: 'partner', description: 'Partenaire commercial' }
+    ]
+  });
+});
 
-// ===== ACCOUNTS ROUTES =====
-router.get('/accounts', globalController.getAllAccounts);
-router.get('/accounts/:id', globalController.getAccountById);
-router.post('/accounts', globalController.createAccount);
-router.put('/accounts/:id', globalController.updateAccount);
-router.delete('/accounts/:id', globalController.deleteAccount);
+// Endpoint pour les comptes
+router.get('/accounts', (req, res) => {
+  res.json({
+    success: true,
+    data: [
+      { id: 1, name: 'Focus Technology Solutions', status: 'active', type: 'enterprise' },
+      { id: 2, name: 'CloudStack Portal', status: 'active', type: 'service' }
+    ]
+  });
+});
 
-// ===== ZONES ROUTES =====
-router.get('/zones', globalController.getAllZones);
-router.get('/zones/:id', globalController.getZoneById);
-router.post('/zones', globalController.createZone);
-router.put('/zones/:id', globalController.updateZone);
-router.delete('/zones/:id', globalController.deleteZone);
+// Endpoint pour les zones
+router.get('/zones', (req, res) => {
+  res.json({
+    success: true,
+    data: [
+      { id: 1, name: 'Zone 1', status: 'active', description: 'Zone principale' },
+      { id: 2, name: 'Zone 2', status: 'active', description: 'Zone secondaire' }
+    ]
+  });
+});
 
 module.exports = router; 

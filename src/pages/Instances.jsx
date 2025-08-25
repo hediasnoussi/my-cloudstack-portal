@@ -37,9 +37,11 @@ import {
   Pause as PauseIcon
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../contexts/AuthContext';
 
 const Instances = () => {
   const { t } = useTranslation();
+  const { user, isUser, isAdmin, isSubprovider } = useAuth();
   const [instances, setInstances] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -56,32 +58,80 @@ const Instances = () => {
 
   useEffect(() => {
     fetchInstances();
-  }, []);
+  }, [user]);
 
   const fetchInstances = async () => {
     try {
       setLoading(true);
-      // Simuler des données d'instances pour l'instant
-      const mockInstances = [
-                 {
-           id: 1,
-           name: 'Web Server 1',
-           template: 'Ubuntu 20.04',
-           zone: 'Zone 1',
-           service_offering: 'Small',
-           ip_address: '192.168.1.100',
-           created_at: '2024-01-15T10:30:00Z'
-         },
-                 {
-           id: 2,
-           name: 'Database Server',
-           template: 'CentOS 8',
-           zone: 'Zone 1',
-           service_offering: 'Medium',
-           ip_address: '192.168.1.101',
-           created_at: '2024-01-14T15:45:00Z'
-         }
-      ];
+      
+      // Simuler des données d'instances avec filtrage selon le rôle
+      let mockInstances = [];
+      
+      if (isAdmin() || isSubprovider()) {
+        // Admins et subproviders voient toutes les instances
+        mockInstances = [
+          {
+            id: 1,
+            name: 'Web Server 1',
+            template: 'Ubuntu 20.04',
+            zone: 'Zone 1',
+            service_offering: 'Small',
+            ip_address: '192.168.1.100',
+            created_at: '2024-01-15T10:30:00Z',
+            owner: 'user1',
+            owner_id: 1
+          },
+          {
+            id: 2,
+            name: 'Database Server',
+            template: 'CentOS 8',
+            zone: 'Zone 1',
+            service_offering: 'Medium',
+            ip_address: '192.168.1.101',
+            created_at: '2024-01-14T15:45:00Z',
+            owner: 'user2',
+            owner_id: 2
+          },
+          {
+            id: 3,
+            name: 'Test Server',
+            template: 'Windows Server 2019',
+            zone: 'Zone 2',
+            service_offering: 'Large',
+            ip_address: '192.168.1.102',
+            created_at: '2024-01-13T09:20:00Z',
+            owner: 'user1',
+            owner_id: 1
+          }
+        ];
+      } else if (isUser() && user) {
+        // Utilisateurs normaux voient seulement leurs propres instances
+        mockInstances = [
+          {
+            id: 1,
+            name: 'Web Server 1',
+            template: 'Ubuntu 20.04',
+            zone: 'Zone 1',
+            service_offering: 'Small',
+            ip_address: '192.168.1.100',
+            created_at: '2024-01-15T10:30:00Z',
+            owner: user.username,
+            owner_id: user.id
+          },
+          {
+            id: 3,
+            name: 'Test Server',
+            template: 'Windows Server 2019',
+            zone: 'Zone 2',
+            service_offering: 'Large',
+            ip_address: '192.168.1.102',
+            created_at: '2024-01-13T09:20:00Z',
+            owner: user.username,
+            owner_id: user.id
+          }
+        ];
+      }
+      
       setInstances(mockInstances);
       setError(null);
     } catch (err) {
@@ -209,7 +259,7 @@ const Instances = () => {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700, color: '#1e293b' }}>
+        <Typography variant="h4" sx={{ fontWeight: 700, color: 'white' }}>
           {t('instances.title')}
         </Typography>
         <Box>
@@ -300,7 +350,7 @@ const Instances = () => {
                         </>
                       )}
                       <Tooltip title={t('instances.deleteInstance')}>
-                        <IconButton size="small" sx={{ color: '#ef4444' }} onClick={() => handleDelete(instance.id)}>
+                        <IconButton size="small" sx={{ color: '#6b7280' }} onClick={() => handleDelete(instance.id)}>
                           <DeleteIcon />
                         </IconButton>
                       </Tooltip>
@@ -324,7 +374,7 @@ const Instances = () => {
       {/* Dialog pour créer/modifier/voir une instance */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
-          {dialogMode === 'create' ? 'Nouvelle Instance' : 
+          {dialogMode === 'create' ? 'Nouveau VPS' : 
            dialogMode === 'edit' ? 'Modifier l\'Instance' : 'Détails de l\'Instance'}
         </DialogTitle>
         <DialogContent>

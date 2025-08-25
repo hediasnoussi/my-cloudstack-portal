@@ -247,8 +247,8 @@ const Volumes = () => {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700, color: '#1e293b' }}>
-          {t('volumes.title')}
+        <Typography variant="h4" sx={{ fontWeight: 700, color: 'white' }}>
+          Gestion des Volumes
         </Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Button variant="outlined" startIcon={<RefreshIcon />} onClick={fetchVolumes}>
@@ -323,7 +323,7 @@ const Volumes = () => {
                       </Tooltip>
                     )}
                     <Tooltip title={t('volumes.deleteVolume')}>
-                      <IconButton size="small" sx={{ color: '#ef4444' }} onClick={() => handleDelete(volume.id)}>
+                      <IconButton size="small" sx={{ color: '#6b7280' }} onClick={() => handleDelete(volume.id)}>
                         <DeleteIcon />
                       </IconButton>
                     </Tooltip>

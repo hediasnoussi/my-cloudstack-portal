@@ -25,7 +25,7 @@ import {
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
-const Snapshots: React.FC = () => {
+const Snapshots = () => {
   const { t } = useTranslation();
   const [snapshots] = useState([
     {
@@ -48,7 +48,7 @@ const Snapshots: React.FC = () => {
     }
   ]);
 
-  const getStatusChip = (status: string) => {
+  const getStatusChip = (status) => {
     switch (status) {
       case 'ready':
         return <Chip label={t('snapshots.ready')} color="success" size="small" />;
@@ -150,7 +150,7 @@ const Snapshots: React.FC = () => {
                       </>
                     )}
                     <Tooltip title={t('snapshots.delete')}>
-                      <IconButton size="small" sx={{ color: '#ef4444' }}>
+                      <IconButton size="small" sx={{ color: '#6b7280' }}>
                         <DeleteIcon />
                       </IconButton>
                     </Tooltip>

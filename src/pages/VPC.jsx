@@ -230,7 +230,7 @@ const VPC = () => {
   return (
     <Box p={3}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1">
+        <Typography variant="h4" component="h1" sx={{ color: 'white' }}>
           VPC Management
         </Typography>
         <Box>
@@ -322,7 +322,7 @@ const VPC = () => {
                     <Tooltip title="Delete VPC">
                       <IconButton 
                         size="small" 
-                        color="error"
+                        sx={{ color: '#6b7280' }}
                         onClick={() => handleDeleteVpc(vpc.id)}
                       >
                         <DeleteIcon />

@@ -585,7 +585,7 @@ const CloudStackDashboard = ({ onLogout }: { onLogout: () => void }) => {
              <CloudIcon sx={{ fontSize: 32, color: '#1e3a8a' }} />
              <Typography variant="h5" sx={{ fontWeight: 600, color: '#1e3a8a' }}>
                CloudStack Portal
-             </Typography>
+      </Typography>
              <Chip 
                label="Production" 
                size="small" 
@@ -653,11 +653,11 @@ const CloudStackDashboard = ({ onLogout }: { onLogout: () => void }) => {
         <Box sx={{ mb: 4 }}>
           <Typography variant="h4" sx={{ fontWeight: 700, color: '#1e293b', mb: 1 }}>
             Rapport d'Analytics CloudStack
-          </Typography>
+                  </Typography>
           <Typography variant="body1" sx={{ color: '#64748b' }}>
             Vue d'ensemble de votre infrastructure cloud
-          </Typography>
-        </Box>
+                  </Typography>
+                </Box>
 
         {/* KPIs en haut */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -697,9 +697,9 @@ const CloudStackDashboard = ({ onLogout }: { onLogout: () => void }) => {
                 <Typography variant="body2" sx={{ color: '#64748b' }}>
                   Efficacité des ressources
                 </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+            </CardContent>
+          </Card>
+        </Grid>
 
           <Grid item xs={12} sm={6} md={4}>
             <Card sx={{ 
@@ -824,7 +824,7 @@ const CloudStackDashboard = ({ onLogout }: { onLogout: () => void }) => {
                 </Box>
               </Box>
             </MainCard>
-          </Grid>
+        </Grid>
 
           {/* Statistiques latérales */}
           <Grid item xs={12} lg={4}>
@@ -862,7 +862,7 @@ const CloudStackDashboard = ({ onLogout }: { onLogout: () => void }) => {
                     <Typography variant="body2" sx={{ color: '#1e293b' }}>
                       Projets
                     </Typography>
-                  </Box>
+              </Box>
                   <Typography variant="h6" sx={{ fontWeight: 600, color: '#1e293b' }}>
                     {stats.projects}
                   </Typography>
@@ -893,7 +893,7 @@ const CloudStackDashboard = ({ onLogout }: { onLogout: () => void }) => {
                 </Box>
               </Box>
             </MainCard>
-          </Grid>
+        </Grid>
         </Grid>
       </Box>
     </Box>

@@ -1,15 +1,15 @@
 import axios from 'axios';
 
 // Configuration de base pour l'API
-const API_BASE_URL = 'http://localhost:3001';
+const API_BASE_URL = 'http://localhost:3000';
 
 // Instance axios configurée
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+        headers: {
+          'Content-Type': 'application/json',
+        },
 });
 
 // Intercepteur pour les requêtes

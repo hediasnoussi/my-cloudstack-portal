@@ -1,98 +1,105 @@
-import { apiService } from './api';
+import apiService from './api';
 
 class AuthService {
   constructor() {
-    this.user = null;
-    this.token = localStorage.getItem('token');
+    this.userKey = 'userData';
   }
 
-  // Connexion utilisateur
+  // Connexion utilisateur (sans JWT)
   async login(username, password) {
     try {
-      // Simulation des comptes de démonstration avec nouveaux rôles
-      const demoUsers = {
-        'subprovider': { username: 'subprovider', password: 'sub123', role: 'subprovider', displayName: 'Subprovider' },
-        'agent': { username: 'agent', password: 'agent123', role: 'agent', displayName: 'Partenaire' },
-        'admin': { username: 'admin', password: 'admin123', role: 'subprovider', displayName: 'Admin' },
-        'user1': { username: 'user1', password: 'user123', role: 'agent', displayName: 'Partenaire 1' },
-        'domain_admin': { username: 'domain_admin', password: 'domain123', role: 'subprovider', displayName: 'Domain Admin' }
-      };
-
-      const user = demoUsers[username];
+      const response = await apiService.post('/api/login', { username, password });
       
-      if (user && user.password === password) {
-        this.user = {
-          username: user.username,
-          role: user.role,
-          displayName: user.displayName,
-          account_name: user.role === 'subprovider' ? 'Compte Subprovider' : 'Compte Partenaire'
-        };
+      if (response.data.success) {
+        const { user } = response.data.data;
         
-        // Stocker les informations utilisateur
-        localStorage.setItem('user', JSON.stringify(this.user));
-        return { success: true, user: this.user };
+        // Stocker seulement les données utilisateur (sans token)
+        localStorage.setItem(this.userKey, JSON.stringify(user));
+        
+        return {
+          success: true,
+          user
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data.message
+        };
       }
-      
-      return { success: false, error: 'Nom d\'utilisateur ou mot de passe incorrect' };
     } catch (error) {
-      console.error('Login error:', error);
-      return { 
-        success: false, 
-        error: error.response?.data?.error || 'Erreur de connexion' 
+      console.error('Erreur de connexion:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Erreur de connexion au serveur'
       };
     }
   }
 
   // Déconnexion
   logout() {
-    this.user = null;
-    this.token = null;
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
+    localStorage.removeItem(this.userKey);
   }
 
   // Vérifier si l'utilisateur est connecté
   isAuthenticated() {
-    const user = localStorage.getItem('user');
-    return user !== null;
+    const userData = localStorage.getItem(this.userKey);
+    return !!userData;
   }
 
   // Obtenir l'utilisateur actuel
   getCurrentUser() {
-    if (!this.user) {
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        this.user = JSON.parse(userStr);
-      }
-    }
-    return this.user;
+    const userData = localStorage.getItem(this.userKey);
+    return userData ? JSON.parse(userData) : null;
   }
 
-  // Vérifier si l'utilisateur est subprovider
+  // Vérifier si l'utilisateur est admin
+  isAdmin() {
+    const user = this.getCurrentUser();
+    return user && user.role === 'admin';
+  }
+
+  // Vérifier si l'utilisateur est un utilisateur normal
+  isUser() {
+    const user = this.getCurrentUser();
+    return user && user.role === 'user';
+  }
+
+  // Vérifier si l'utilisateur est un subprovider
   isSubprovider() {
     const user = this.getCurrentUser();
     return user && user.role === 'subprovider';
   }
 
-  // Vérifier si l'utilisateur est agent commercial
-  isAgent() {
+  // Vérifier si l'utilisateur est un partner/agent
+  isPartner() {
     const user = this.getCurrentUser();
-    return user && user.role === 'agent';
+    return user && user.role === 'partner';
   }
 
-  // Obtenir le nom d'affichage de l'utilisateur
+  // Obtenir le nom d'affichage du rôle
   getDisplayName() {
     const user = this.getCurrentUser();
-    if (user) {
-      return user.displayName || user.username || user.email;
+    if (!user) return '';
+
+    switch (user.role) {
+      case 'admin': return 'Administrateur';
+      case 'subprovider': return 'Fournisseur Secondaire';
+      case 'partner': return 'Partenaire/Agent';
+      case 'user': return 'Client Final';
+      default: return user.role;
     }
-    return 'Utilisateur';
   }
 
-  // Obtenir les informations du compte associé
+  // Obtenir les informations du compte
   getAccountInfo() {
     const user = this.getCurrentUser();
-    return user?.account_name || 'Aucun compte';
+    return user ? {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      account_id: user.account_id
+    } : null;
   }
 }
 

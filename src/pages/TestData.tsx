@@ -1,252 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Button,
-  Chip,
-  IconButton,
-  Tooltip,
-  Alert,
-  CircularProgress,
-  Card,
-  CardContent,
-  Grid
-} from '@mui/material';
-import {
-  Add as AddIcon,
-  Refresh as RefreshIcon,
-  Cloud as CloudIcon,
-  Domain as DomainIcon,
-  People as PeopleIcon,
-  Security as SecurityIcon
-} from '@mui/icons-material';
-import { apiService } from '../services/api';
+import React from 'react';
+import { useLocation, Link } from 'react-router-dom';
 
 const TestData: React.FC = () => {
-  const [domains, setDomains] = useState<any[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
-  const [accounts, setAccounts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [apiStatus, setApiStatus] = useState<string>('Testing...');
+  const location = useLocation();
 
-  useEffect(() => {
-    testApiConnection();
-  }, []);
-
-  const testApiConnection = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      // Test de connexion API
-      const testResponse = await apiService.testConnection();
-      setApiStatus(`✅ API connectée: ${testResponse.data.message}`);
-      
-      // Récupérer les domaines
-      const domainsResponse = await apiService.getDomains();
-      setDomains(domainsResponse.data.data || []);
-      
-      // Récupérer les utilisateurs
-      const usersResponse = await apiService.getUsers();
-      setUsers(usersResponse.data.data || []);
-      
-      // Récupérer les comptes
-      const accountsResponse = await apiService.getAccounts();
-      setAccounts(accountsResponse.data.data || []);
-      
-    } catch (err: any) {
-      setError(`Erreur API: ${err.message}`);
-      setApiStatus('❌ API non connectée');
-      console.error('API Error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
-      </Box>
-    );
-  }
+  // Liste des routes de base à tester
+  const testRoutes = [
+    { path: '/dashboard', name: 'Dashboard Principal' },
+    { path: '/compute', name: 'Compute Principal' },
+    { path: '/storage', name: 'Storage Principal' },
+    { path: '/network', name: 'Network Principal' },
+  ];
 
   return (
-    <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1">
-          Test des Données API
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<RefreshIcon />}
-          onClick={testApiConnection}
-        >
-          Actualiser
-        </Button>
-      </Box>
+    <div className="w-full p-6">
+      {/* En-tête de test */}
+      <div className="mb-8 p-6 bg-blue-100 border border-blue-400 text-blue-700 rounded-lg">
+        <h1 className="text-3xl font-bold mb-4">🧪 Test de Routage</h1>
+        <p className="text-lg">Route actuelle : <code className="bg-blue-200 px-2 py-1 rounded">{location.pathname}</code></p>
+        <p className="mt-2">Test des routes principales de l'application</p>
+      </div>
 
-      {/* Status API */}
-      <Alert severity={apiStatus.includes('✅') ? 'success' : 'error'} sx={{ mb: 3 }}>
-        {apiStatus}
-      </Alert>
+      {/* Grille des routes de test */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {testRoutes.map((route) => (
+          <div key={route.path} className="p-6 bg-white rounded-lg shadow-md border border-gray-200">
+            <h3 className="text-lg font-semibold mb-2 text-gray-800">{route.name}</h3>
+            <p className="text-sm text-gray-600 mb-4">Route : <code className="bg-gray-100 px-2 py-1 rounded text-xs">{route.path}</code></p>
+            
+            <Link
+              to={route.path}
+              className="inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm"
+            >
+              Tester la Route
+            </Link>
+          </div>
+        ))}
+      </div>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
-        </Alert>
-      )}
-
-      {/* Statistiques */}
-      <Grid container spacing={3} mb={3}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Box display="flex" alignItems="center">
-                <DomainIcon color="primary" sx={{ mr: 2 }} />
-                <Box>
-                  <Typography variant="h6">{domains.length}</Typography>
-                  <Typography variant="body2" color="textSecondary">Domaines</Typography>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Box display="flex" alignItems="center">
-                <PeopleIcon color="primary" sx={{ mr: 2 }} />
-                <Box>
-                  <Typography variant="h6">{users.length}</Typography>
-                  <Typography variant="body2" color="textSecondary">Utilisateurs</Typography>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Box display="flex" alignItems="center">
-                <SecurityIcon color="primary" sx={{ mr: 2 }} />
-                <Box>
-                  <Typography variant="h6">{accounts.length}</Typography>
-                  <Typography variant="body2" color="textSecondary">Comptes</Typography>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Box display="flex" alignItems="center">
-                <CloudIcon color="primary" sx={{ mr: 2 }} />
-                <Box>
-                  <Typography variant="h6">3</Typography>
-                  <Typography variant="body2" color="textSecondary">Zones</Typography>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-
-      {/* Tableau des Domaines */}
-      <Paper sx={{ width: '100%', overflow: 'hidden', mb: 3 }}>
-        <Box p={2} display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6">Domaines</Typography>
-          <Button variant="contained" startIcon={<AddIcon />}>
-            Ajouter
-          </Button>
-        </Box>
-        <TableContainer>
-          <Table stickyHeader>
-            <TableHead>
-              <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Nom</TableCell>
-                <TableCell>État</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {domains.map((domain) => (
-                <TableRow key={domain.id} hover>
-                  <TableCell>{domain.id}</TableCell>
-                  <TableCell>{domain.name}</TableCell>
-                  <TableCell>
-                    <Chip label="Actif" color="success" size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <Tooltip title="Voir">
-                      <IconButton size="small">
-                        <RefreshIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
-
-      {/* Tableau des Utilisateurs */}
-      <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-        <Box p={2} display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6">Utilisateurs</Typography>
-          <Button variant="contained" startIcon={<AddIcon />}>
-            Ajouter
-          </Button>
-        </Box>
-        <TableContainer>
-          <Table stickyHeader>
-            <TableHead>
-              <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Nom d'utilisateur</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Rôle</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id} hover>
-                  <TableCell>{user.id}</TableCell>
-                  <TableCell>{user.username}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={user.role} 
-                      color={user.role === 'admin' ? 'error' : 'default'} 
-                      size="small" 
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Tooltip title="Voir">
-                      <IconButton size="small">
-                        <RefreshIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
-    </Box>
+      {/* Statut */}
+      <div className="mt-8 p-6 bg-green-100 border border-green-400 text-green-800 rounded-lg">
+        <h3 className="text-lg font-semibold mb-2">✅ Système de Routage</h3>
+        <p>Routes configurées : {testRoutes.length}</p>
+        <p>Layout principal : MainLayout.tsx</p>
+        <p>Navigation : React Router v6</p>
+      </div>
+    </div>
   );
 };
 

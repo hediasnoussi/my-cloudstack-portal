@@ -331,7 +331,7 @@ const GuestNetworks = () => {
                     <Tooltip title="Delete Guest Network">
                       <IconButton 
                         size="small" 
-                        color="error"
+                        sx={{ color: '#6b7280' }}
                         onClick={() => handleDeleteNetwork(network.id)}
                       >
                         <DeleteIcon />

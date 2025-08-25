@@ -30,6 +30,9 @@ import SettingOutlined from '@ant-design/icons/SettingOutlined';
 import UserOutlined from '@ant-design/icons/UserOutlined';
 import avatar1 from 'assets/images/users/avatar-1.png';
 
+// context
+import { useAuth } from 'contexts/AuthContext';
+
 // tab panel wrapper
 function TabPanel({ children, value, index, ...other }) {
   return (
@@ -50,10 +53,16 @@ function a11yProps(index) {
 
 export default function Profile() {
   const theme = useTheme();
+  const { user, logout } = useAuth();
+
+  console.log('🔍 Profile component - user:', user);
+  console.log('🔍 Profile component - logout function:', logout);
 
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
+  
   const handleToggle = () => {
+    console.log('🔍 Profile toggle clicked, current open state:', open);
     setOpen((prevOpen) => !prevOpen);
   };
 
@@ -64,14 +73,28 @@ export default function Profile() {
     setOpen(false);
   };
 
+  const handleLogout = () => {
+    console.log('🔍 Logout clicked');
+    logout();
+    setOpen(false);
+  };
+
   const [value, setValue] = useState(0);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
+  // Si pas d'utilisateur connecté, ne pas afficher le composant
+  if (!user) {
+    console.log('🔍 Profile component - no user, returning null');
+    return null;
+  }
+
+  console.log('🔍 Profile component - rendering with user:', user.username);
+
   return (
-    <Box sx={{ flexShrink: 0, ml: 0.75 }}>
+    <Box sx={{ flexShrink: 0, ml: 0.75, border: '2px solid red' }}>
       <ButtonBase
         sx={(theme) => ({
           p: 0.25,
@@ -90,7 +113,7 @@ export default function Profile() {
         <Stack direction="row" sx={{ gap: 1.25, alignItems: 'center', p: 0.5 }}>
           <Avatar alt="profile user" src={avatar1} size="sm" />
           <Typography variant="subtitle1" sx={{ textTransform: 'capitalize' }}>
-            John Doe
+            {user.username || 'Utilisateur'}
           </Typography>
         </Stack>
       </ButtonBase>
@@ -123,16 +146,18 @@ export default function Profile() {
                         <Stack direction="row" sx={{ gap: 1.25, alignItems: 'center' }}>
                           <Avatar alt="profile user" src={avatar1} sx={{ width: 32, height: 32 }} />
                           <Stack>
-                            <Typography variant="h6">John Doe</Typography>
+                            <Typography variant="h6">{user.username || 'Utilisateur'}</Typography>
                             <Typography variant="body2" color="text.secondary">
-                              UI/UX Designer
+                              {user.role === 'subprovider' ? 'Fournisseur Secondaire' : 
+                               user.role === 'partner' ? 'Partenaire' : 
+                               user.role === 'user' ? 'Client Final' : 'Utilisateur'}
                             </Typography>
                           </Stack>
                         </Stack>
                       </Grid>
                       <Grid>
-                        <Tooltip title="Logout">
-                          <IconButton size="large" sx={{ color: 'text.primary' }}>
+                        <Tooltip title="Déconnexion">
+                          <IconButton size="large" sx={{ color: 'text.primary' }} onClick={handleLogout}>
                             <LogoutOutlined />
                           </IconButton>
                         </Tooltip>
@@ -155,7 +180,7 @@ export default function Profile() {
                           }
                         }}
                         icon={<UserOutlined />}
-                        label="Profile"
+                        label="Profil"
                         {...a11yProps(0)}
                       />
                       <Tab
@@ -171,7 +196,7 @@ export default function Profile() {
                           }
                         }}
                         icon={<SettingOutlined />}
-                        label="Setting"
+                        label="Paramètres"
                         {...a11yProps(1)}
                       />
                     </Tabs>

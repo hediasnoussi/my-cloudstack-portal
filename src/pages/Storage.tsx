@@ -1,36 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Card,
-  CardContent,
-  Grid,
-  Typography,
-  Container,
-  Paper,
-  LinearProgress,
-  Alert,
-  Tabs,
-  Tab,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Chip,
-  IconButton,
-  Button
-} from '@mui/material';
-import {
-  Storage as StorageIcon,
-  CameraAlt as SnapshotIcon,
-  Backup as BackupIcon,
-  Cloud as BucketIcon,
-  Folder as FileSystemIcon,
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon
-} from '@mui/icons-material';
 import { apiService } from '../services/api';
 
 interface TabPanelProps {
@@ -48,8 +16,9 @@ function TabPanel(props: TabPanelProps) {
       id={`storage-tabpanel-${index}`}
       aria-labelledby={`storage-tab-${index}`}
       {...other}
+      className={value === index ? 'block' : 'hidden'}
     >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+      {value === index && children}
     </div>
   );
 }
@@ -59,437 +28,312 @@ const Storage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // États pour les données
-  const [volumes, setVolumes] = useState([]);
-  const [snapshots, setSnapshots] = useState([]);
-  const [backups, setBackups] = useState([]);
-  const [buckets, setBuckets] = useState([]);
-  const [fileSystems, setFileSystems] = useState([]);
+  // Mock data - À remplacer par de vrais appels API
+  const [volumes] = useState([
+    { id: 1, name: 'data-volume-01', size: '100GB', type: 'ROOT', vm: 'web-server-01', state: 'Ready', zone: 'zone1' },
+    { id: 2, name: 'backup-volume-01', size: '200GB', type: 'DATADISK', vm: null, state: 'Allocated', zone: 'zone1' },
+    { id: 3, name: 'database-volume-01', size: '500GB', type: 'DATADISK', vm: 'db-server-01', state: 'Ready', zone: 'zone2' }
+  ]);
+
+  const [volumeSnapshots] = useState([
+    { id: 1, name: 'data-backup-20240115', volume: 'data-volume-01', size: '100GB', created: '2024-01-15', status: 'BackedUp' },
+    { id: 2, name: 'database-backup-20240110', volume: 'database-volume-01', size: '500GB', created: '2024-01-10', status: 'BackedUp' }
+  ]);
+
+  const [backups] = useState([
+    { id: 1, name: 'full-backup-20240115', type: 'Full', size: '1.2TB', created: '2024-01-15', status: 'Completed' },
+    { id: 2, name: 'incremental-backup-20240116', type: 'Incremental', size: '50GB', created: '2024-01-16', status: 'Completed' }
+  ]);
 
   useEffect(() => {
-    loadStorageData();
-  }, []);
-
-  const loadStorageData = async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      // Données de test pour Storage
-      setVolumes([
-        {
-          id: 1,
-          name: 'volume-prod-01',
-          state: 'allocated',
-          size: '100 GB',
-          type: 'SSD',
-          instanceName: 'VM-Production-01',
-          storage: 'Local Storage',
-          account: 'admin',
-          zone: 'Zone-1'
-        },
-        {
-          id: 2,
-          name: 'volume-test-01',
-          state: 'ready',
-          size: '50 GB',
-          type: 'HDD',
-          instanceName: 'VM-Test-01',
-          storage: 'Local Storage',
-          account: 'user1',
-          zone: 'Zone-1'
-        }
-      ]);
-
-      setSnapshots([
-        {
-          id: 1,
-          name: 'snapshot-vol-01',
-          state: 'backed up',
-          volumeName: 'volume-prod-01',
-          intervalType: 'MANUAL',
-          physicalSize: '100 GB',
-          created: '2024-01-15 14:30:00',
-          account: 'admin',
-          domain: 'ROOT',
-          zone: 'Zone-1'
-        }
-      ]);
-
-      setBackups([
-        {
-          id: 1,
-          name: 'backup-prod-01',
-          status: 'backed up',
-          size: '100 GB',
-          virtualSize: '95 GB',
-          type: 'Full',
-          created: '2024-01-15 16:00:00',
-          account: 'admin',
-          domain: 'ROOT',
-          zone: 'Zone-1'
-        }
-      ]);
-
-      setBuckets([
-        {
-          id: 1,
-          name: 'bucket-prod-01',
-          status: 'active',
-          objectStorage: 'S3 Compatible',
-          size: '500 GB',
-          account: 'admin'
-        }
-      ]);
-
-      setFileSystems([
-        {
-          id: 1,
-          name: 'filesystem-shared-01',
-          state: 'enabled',
-          size: '1 TB',
-          account: 'admin',
-          sizeUsed: '250 GB'
-        }
-      ]);
-
-    } catch (err: any) {
-      console.error('Erreur de chargement:', err);
-      setError(err.response?.data?.message || 'Erreur lors du chargement des données');
-    } finally {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        // Simulation d'appel API
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setLoading(false);
+      } catch (err) {
+        setError('Erreur lors du chargement des données de stockage');
       setLoading(false);
     }
   };
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    loadData();
+  }, []);
+
+  const handleTabChange = (newValue: number) => {
     setTabValue(newValue);
   };
 
   const getStateColor = (state: string) => {
     switch (state.toLowerCase()) {
-      case 'allocated':
       case 'ready':
-      case 'backed up':
-      case 'enabled':
-      case 'active':
-        return 'success';
-      case 'backing up':
-        return 'warning';
-      case 'disabled':
+      case 'backedup':
+      case 'completed':
+        return 'bg-emerald-500';
+      case 'allocated':
+        return 'bg-yellow-500';
       case 'error':
-        return 'error';
+        return 'bg-red-500';
       default:
-        return 'default';
+        return 'bg-gray-500';
+    }
+  };
+
+  const getVolumeTypeColor = (type: string) => {
+    switch (type) {
+      case 'ROOT':
+        return 'bg-blue-500';
+      case 'DATADISK':
+        return 'bg-purple-500';
+      default:
+        return 'bg-gray-500';
     }
   };
 
   if (loading) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <LinearProgress />
-        <Typography variant="h6" sx={{ mt: 2 }}>
-          Chargement des données Storage...
-        </Typography>
-      </Container>
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500"></div>
+        <p className="ml-4 text-lg text-slate-600">Chargement des données de stockage...</p>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <Alert severity="error">{error}</Alert>
-      </Container>
+      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        {error}
+      </div>
     );
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Storage
-      </Typography>
+    <div className="w-full">
+      {/* En-tête */}
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-slate-700 dark:text-white mb-2">Storage</h1>
+        <p className="text-slate-600 dark:text-slate-400">Gérez vos volumes, snapshots et systèmes de stockage</p>
+      </div>
       
-      <Paper sx={{ width: '100%' }}>
-        <Tabs value={tabValue} onChange={handleTabChange} aria-label="storage tabs">
-          <Tab label="Volumes" icon={<StorageIcon />} />
-          <Tab label="Volume Snapshots" icon={<SnapshotIcon />} />
-          <Tab label="Backups" icon={<BackupIcon />} />
-          <Tab label="Buckets" icon={<BucketIcon />} />
-          <Tab label="Shared FileSystem" icon={<FileSystemIcon />} />
-        </Tabs>
-      </Paper>
+      {/* Onglets - Style Argon */}
+      <div className="border-black/12.5 dark:bg-slate-850 dark:shadow-dark-xl shadow-xl relative z-20 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid bg-white bg-clip-border mb-6">
+        <div className="border-black/12.5 mb-0 rounded-t-2xl border-b-0 border-solid p-6 pt-4 pb-0">
+          <div className="flex flex-wrap">
+            {[
+              { label: 'Volumes', icon: 'fas fa-hdd', index: 0 },
+              { label: 'Volume Snapshots', icon: 'fas fa-clone', index: 1 },
+              { label: 'Backups', icon: 'fas fa-shield-alt', index: 2 },
+              { label: 'Buckets', icon: 'fas fa-bucket', index: 3 },
+              { label: 'Shared FileSystem', icon: 'fas fa-folder-open', index: 4 }
+            ].map((tab) => (
+              <button
+                key={tab.index}
+                onClick={() => handleTabChange(tab.index)}
+                className={`px-4 py-2 mx-1 rounded-lg transition-colors duration-200 flex items-center ${
+                  tabValue === tab.index
+                    ? 'bg-orange-500 text-white shadow-lg'
+                    : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700'
+                }`}
+              >
+                <i className={`${tab.icon} mr-2`}></i>
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Contenu des onglets */}
 
       {/* Volumes */}
       <TabPanel value={tabValue} index={0}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-          <Typography variant="h6">Volumes ({volumes.length})</Typography>
-          <Button variant="contained" startIcon={<AddIcon />}>
+        <div className="border-black/12.5 dark:bg-slate-850 dark:shadow-dark-xl shadow-xl relative z-20 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid bg-white bg-clip-border">
+          <div className="border-black/12.5 mb-0 rounded-t-2xl border-b-0 border-solid p-6 pt-4 pb-0">
+            <div className="flex justify-between items-center">
+              <h6 className="capitalize dark:text-white">Volumes ({volumes.length})</h6>
+              <button className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200">
+                <i className="fas fa-plus mr-2"></i>
             Nouveau Volume
-          </Button>
-        </Box>
-        
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>State</TableCell>
-                <TableCell>Size</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Instance Name</TableCell>
-                <TableCell>Storage</TableCell>
-                <TableCell>Account</TableCell>
-                <TableCell>Zone</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {volumes.map((volume: any) => (
-                <TableRow key={volume.id}>
-                  <TableCell>{volume.name}</TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={volume.state} 
-                      color={getStateColor(volume.state) as any}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>{volume.size}</TableCell>
-                  <TableCell>{volume.type}</TableCell>
-                  <TableCell>{volume.instanceName}</TableCell>
-                  <TableCell>{volume.storage}</TableCell>
-                  <TableCell>{volume.account}</TableCell>
-                  <TableCell>{volume.zone}</TableCell>
-                  <TableCell>
-                    <IconButton size="small">
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton size="small">
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </button>
+            </div>
+          </div>
+          <div className="flex-auto p-4">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-700">
+                    <th className="text-left py-3 px-4 font-semibold text-slate-600 dark:text-white">Nom</th>
+                    <th className="text-left py-3 px-4 font-semibold text-slate-600 dark:text-white">Taille</th>
+                    <th className="text-left py-3 px-4 font-semibold text-slate-600 dark:text-white">Type</th>
+                    <th className="text-left py-3 px-4 font-semibold text-slate-600 dark:text-white">VM attachée</th>
+                    <th className="text-left py-3 px-4 font-semibold text-slate-600 dark:text-white">État</th>
+                    <th className="text-left py-3 px-4 font-semibold text-slate-600 dark:text-white">Zone</th>
+                    <th className="text-left py-3 px-4 font-semibold text-slate-600 dark:text-white">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {volumes.map((volume) => (
+                    <tr key={volume.id} className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800">
+                      <td className="py-3 px-4 text-slate-700 dark:text-white font-medium">{volume.name}</td>
+                      <td className="py-3 px-4 text-slate-600 dark:text-slate-400">{volume.size}</td>
+                      <td className="py-3 px-4">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getVolumeTypeColor(volume.type)} text-white`}>
+                          {volume.type}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-slate-600 dark:text-slate-400">{volume.vm || 'Non attaché'}</td>
+                      <td className="py-3 px-4">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStateColor(volume.state)} text-white`}>
+                          {volume.state}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-slate-600 dark:text-slate-400">{volume.zone}</td>
+                      <td className="py-3 px-4">
+                        <div className="flex space-x-2">
+                          <button className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                            <i className="fas fa-eye"></i>
+                          </button>
+                          <button className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300">
+                            <i className="fas fa-link"></i>
+                          </button>
+                          <button className="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300">
+                            <i className="fas fa-camera"></i>
+                          </button>
+                          <button className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
+                            <i className="fas fa-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </TabPanel>
 
       {/* Volume Snapshots */}
       <TabPanel value={tabValue} index={1}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-          <Typography variant="h6">Volume Snapshots ({snapshots.length})</Typography>
-          <Button variant="contained" startIcon={<AddIcon />}>
-            Nouveau Snapshot
-          </Button>
-        </Box>
-        
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>State</TableCell>
-                <TableCell>Volume Name</TableCell>
-                <TableCell>Interval Type</TableCell>
-                <TableCell>Physical Size</TableCell>
-                <TableCell>Created</TableCell>
-                <TableCell>Account</TableCell>
-                <TableCell>Domain</TableCell>
-                <TableCell>Zone</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {snapshots.map((snapshot: any) => (
-                <TableRow key={snapshot.id}>
-                  <TableCell>{snapshot.name}</TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={snapshot.state} 
-                      color={getStateColor(snapshot.state) as any}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>{snapshot.volumeName}</TableCell>
-                  <TableCell>{snapshot.intervalType}</TableCell>
-                  <TableCell>{snapshot.physicalSize}</TableCell>
-                  <TableCell>{snapshot.created}</TableCell>
-                  <TableCell>{snapshot.account}</TableCell>
-                  <TableCell>{snapshot.domain}</TableCell>
-                  <TableCell>{snapshot.zone}</TableCell>
-                  <TableCell>
-                    <IconButton size="small">
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton size="small">
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <div className="border-black/12.5 dark:bg-slate-850 dark:shadow-dark-xl shadow-xl relative z-20 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid bg-white bg-clip-border">
+          <div className="border-black/12.5 mb-0 rounded-t-2xl border-b-0 border-solid p-6 pt-4 pb-0">
+            <h6 className="capitalize dark:text-white">Volume Snapshots ({volumeSnapshots.length})</h6>
+          </div>
+          <div className="flex-auto p-4">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-700">
+                    <th className="text-left py-3 px-4 font-semibold text-slate-600 dark:text-white">Nom</th>
+                    <th className="text-left py-3 px-4 font-semibold text-slate-600 dark:text-white">Volume source</th>
+                    <th className="text-left py-3 px-4 font-semibold text-slate-600 dark:text-white">Taille</th>
+                    <th className="text-left py-3 px-4 font-semibold text-slate-600 dark:text-white">Créé</th>
+                    <th className="text-left py-3 px-4 font-semibold text-slate-600 dark:text-white">Statut</th>
+                    <th className="text-left py-3 px-4 font-semibold text-slate-600 dark:text-white">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {volumeSnapshots.map((snapshot) => (
+                    <tr key={snapshot.id} className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800">
+                      <td className="py-3 px-4 text-slate-700 dark:text-white font-medium">{snapshot.name}</td>
+                      <td className="py-3 px-4 text-slate-600 dark:text-slate-400">{snapshot.volume}</td>
+                      <td className="py-3 px-4 text-slate-600 dark:text-slate-400">{snapshot.size}</td>
+                      <td className="py-3 px-4 text-slate-600 dark:text-slate-400">{snapshot.created}</td>
+                      <td className="py-3 px-4">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStateColor(snapshot.status)} text-white`}>
+                          {snapshot.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex space-x-2">
+                          <button className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                            <i className="fas fa-copy"></i>
+                          </button>
+                          <button className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300">
+                            <i className="fas fa-download"></i>
+                          </button>
+                          <button className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
+                            <i className="fas fa-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </TabPanel>
 
       {/* Backups */}
       <TabPanel value={tabValue} index={2}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-          <Typography variant="h6">Backups ({backups.length})</Typography>
-          <Button variant="contained" startIcon={<AddIcon />}>
-            Nouveau Backup
-          </Button>
-        </Box>
-        
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Size</TableCell>
-                <TableCell>Virtual Size</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Created</TableCell>
-                <TableCell>Account</TableCell>
-                <TableCell>Domain</TableCell>
-                <TableCell>Zone</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {backups.map((backup: any) => (
-                <TableRow key={backup.id}>
-                  <TableCell>{backup.name}</TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={backup.status} 
-                      color={getStateColor(backup.status) as any}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>{backup.size}</TableCell>
-                  <TableCell>{backup.virtualSize}</TableCell>
-                  <TableCell>{backup.type}</TableCell>
-                  <TableCell>{backup.created}</TableCell>
-                  <TableCell>{backup.account}</TableCell>
-                  <TableCell>{backup.domain}</TableCell>
-                  <TableCell>{backup.zone}</TableCell>
-                  <TableCell>
-                    <IconButton size="small">
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton size="small">
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
+        <div className="border-black/12.5 dark:bg-slate-850 dark:shadow-dark-xl shadow-xl relative z-20 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid bg-white bg-clip-border">
+          <div className="border-black/12.5 mb-0 rounded-t-2xl border-b-0 border-solid p-6 pt-4 pb-0">
+            <div className="flex justify-between items-center">
+              <h6 className="capitalize dark:text-white">Backups ({backups.length})</h6>
+              <button className="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200">
+                <i className="fas fa-plus mr-2"></i>
+                Nouvelle Sauvegarde
+              </button>
+            </div>
+          </div>
+          <div className="flex-auto p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {backups.map((backup) => (
+                <div key={backup.id} className="bg-white dark:bg-slate-800 rounded-lg shadow p-6 border border-slate-200 dark:border-slate-700">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-lg font-semibold text-slate-700 dark:text-white">{backup.name}</h4>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStateColor(backup.status)} text-white`}>
+                      {backup.status}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 dark:text-slate-400">Type:</span>
+                      <span className="text-slate-700 dark:text-white font-medium">{backup.type}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 dark:text-slate-400">Taille:</span>
+                      <span className="text-slate-700 dark:text-white font-medium">{backup.size}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 dark:text-slate-400">Créé:</span>
+                      <span className="text-slate-700 dark:text-white font-medium">{backup.created}</span>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex space-x-2">
+                    <button className="flex-1 bg-blue-500 hover:bg-blue-700 text-white text-sm py-2 px-3 rounded">
+                      <i className="fas fa-download mr-1"></i>
+                      Télécharger
+                    </button>
+                    <button className="flex-1 bg-red-500 hover:bg-red-700 text-white text-sm py-2 px-3 rounded">
+                      <i className="fas fa-trash mr-1"></i>
+                      Supprimer
+                    </button>
+                  </div>
+                </div>
               ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+            </div>
+          </div>
+        </div>
       </TabPanel>
 
-      {/* Buckets */}
-      <TabPanel value={tabValue} index={3}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-          <Typography variant="h6">Buckets ({buckets.length})</Typography>
-          <Button variant="contained" startIcon={<AddIcon />}>
-            Nouveau Bucket
-          </Button>
-        </Box>
-        
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Object Storage</TableCell>
-                <TableCell>Size</TableCell>
-                <TableCell>Account</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {buckets.map((bucket: any) => (
-                <TableRow key={bucket.id}>
-                  <TableCell>{bucket.name}</TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={bucket.status} 
-                      color={getStateColor(bucket.status) as any}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>{bucket.objectStorage}</TableCell>
-                  <TableCell>{bucket.size}</TableCell>
-                  <TableCell>{bucket.account}</TableCell>
-                  <TableCell>
-                    <IconButton size="small">
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton size="small">
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+      {/* Autres onglets - Contenu placeholder */}
+      {[3, 4].map((index) => (
+        <TabPanel key={index} value={tabValue} index={index}>
+          <div className="border-black/12.5 dark:bg-slate-850 dark:shadow-dark-xl shadow-xl relative z-20 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid bg-white bg-clip-border">
+            <div className="border-black/12.5 mb-0 rounded-t-2xl border-b-0 border-solid p-6 pt-4 pb-0">
+              <h6 className="capitalize dark:text-white">Fonctionnalité à venir</h6>
+            </div>
+            <div className="flex-auto p-4">
+              <p className="text-slate-600 dark:text-slate-400">Cette section sera développée prochainement.</p>
+            </div>
+          </div>
       </TabPanel>
-
-      {/* Shared FileSystem */}
-      <TabPanel value={tabValue} index={4}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-          <Typography variant="h6">Shared FileSystem ({fileSystems.length})</Typography>
-          <Button variant="contained" startIcon={<AddIcon />}>
-            Nouveau FileSystem
-          </Button>
-        </Box>
-        
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>State</TableCell>
-                <TableCell>Size</TableCell>
-                <TableCell>Account</TableCell>
-                <TableCell>Size Used</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {fileSystems.map((fs: any) => (
-                <TableRow key={fs.id}>
-                  <TableCell>{fs.name}</TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={fs.state} 
-                      color={getStateColor(fs.state) as any}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>{fs.size}</TableCell>
-                  <TableCell>{fs.account}</TableCell>
-                  <TableCell>{fs.sizeUsed}</TableCell>
-                  <TableCell>
-                    <IconButton size="small">
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton size="small">
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </TabPanel>
-    </Container>
+      ))}
+    </div>
   );
 };
 

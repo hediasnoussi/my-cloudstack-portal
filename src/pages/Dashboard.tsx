@@ -56,8 +56,8 @@ const Dashboard: React.FC = () => {
         </Typography>
       </Box>
 
-      {/* VPS Creation Success Alert for Agents */}
-      {isAgent() && vpsCreationDetails && (
+      {/* VPS Creation Success Alert for Agents and SubProviders */}
+      {vpsCreationDetails && (
         <Alert 
           severity="success" 
           icon={<CheckCircleIcon />}
@@ -72,8 +72,8 @@ const Dashboard: React.FC = () => {
         </Alert>
       )}
 
-      {/* VPS Details Card for Agents */}
-      {isAgent() && vpsCreationDetails && (
+      {/* VPS Details Card for Agents and SubProviders */}
+      {vpsCreationDetails && (
         <Paper sx={{ p: 3, mb: 4, bgcolor: 'success.50', border: '1px solid', borderColor: 'success.200' }}>
           <Typography variant="h5" sx={{ fontWeight: 600, color: '#1e293b', mb: 3 }}>
             {vpsCreationDetails.vpsName}

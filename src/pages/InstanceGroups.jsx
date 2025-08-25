@@ -45,6 +45,9 @@ const InstanceGroups = () => {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
+  // Message de test pour vérifier le routage
+  console.log('✅ InstanceGroups component loaded successfully!');
+
   // Mock data for instance groups
   const mockInstanceGroups = [
     {
@@ -214,11 +217,17 @@ const InstanceGroups = () => {
   }
 
   return (
-    <Box p={3}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1">
-          Instance Groups Management
+    <div className="w-full">
+      <div className="mb-6 mt-8">
+        <Typography variant="h4" component="h1" gutterBottom sx={{ color: 'white' }}>
+          Gestion des Groupes d'Instances
         </Typography>
+        <Typography variant="body1" sx={{ color: 'white' }}>
+          Gérez vos groupes d'instances CloudStack
+        </Typography>
+      </div>
+
+      <Box display="flex" justifyContent="flex-end" alignItems="center" mb={3}>
         <Box>
           <Button
             variant="outlined"
@@ -294,6 +303,7 @@ const InstanceGroups = () => {
                     <Tooltip title="View Details">
                       <IconButton 
                         size="small" 
+                        sx={{ color: '#6b7280' }}
                         onClick={() => handleOpenDialog('view', group)}
                       >
                         <ViewIcon />
@@ -302,6 +312,7 @@ const InstanceGroups = () => {
                     <Tooltip title="Edit Instance Group">
                       <IconButton 
                         size="small" 
+                        sx={{ color: '#6b7280' }}
                         onClick={() => handleOpenDialog('edit', group)}
                       >
                         <EditIcon />
@@ -310,7 +321,7 @@ const InstanceGroups = () => {
                     <Tooltip title="Delete Instance Group">
                       <IconButton 
                         size="small" 
-                        color="error"
+                        sx={{ color: '#6b7280' }}
                         onClick={() => handleDeleteGroup(group.id)}
                       >
                         <DeleteIcon />
@@ -407,7 +418,7 @@ const InstanceGroups = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </Box>
+    </div>
   );
 };
 

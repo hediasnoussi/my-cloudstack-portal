@@ -16,28 +16,40 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Vérifier si l'utilisateur est déjà connecté au chargement
-    const currentUser = authService.getCurrentUser();
-    if (currentUser) {
-      setUser(currentUser);
-    }
-    setLoading(false);
+    // Initialiser l'authentification au démarrage
+    initializeAuth();
   }, []);
 
-  const login = async (username, password) => {
-    setLoading(true);
+  const initializeAuth = () => {
     try {
-      const result = await authService.login(username, password);
-      if (result.success) {
-        setUser(result.user);
-        return { success: true };
-      } else {
-        return { success: false, error: result.error };
+      // Vérifier si l'utilisateur est déjà connecté
+      if (authService.isAuthenticated()) {
+        const currentUser = authService.getCurrentUser();
+        setUser(currentUser);
       }
     } catch (error) {
-      return { success: false, error: 'Erreur de connexion' };
+      console.error('Erreur lors de l\'initialisation de l\'authentification:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const login = async (username, password) => {
+    try {
+      const result = await authService.login(username, password);
+      
+      if (result.success) {
+        setUser(result.user);
+        return result;
+      } else {
+        return result;
+      }
+    } catch (error) {
+      console.error('Erreur lors de la connexion:', error);
+      return {
+        success: false,
+        message: 'Erreur de connexion au serveur'
+      };
     }
   };
 
@@ -47,26 +59,35 @@ export const AuthProvider = ({ children }) => {
   };
 
   const isAuthenticated = () => {
-    return user !== null;
+    return authService.isAuthenticated();
+  };
+
+  const isAdmin = () => {
+    return authService.isAdmin();
   };
 
   const isSubprovider = () => {
-    return user && user.role === 'subprovider';
+    return authService.isSubprovider();
   };
 
-  const isAgent = () => {
-    return user && user.role === 'agent';
+  const isPartner = () => {
+    return authService.isPartner();
+  };
+
+  const isUser = () => {
+    const result = authService.isUser();
+    console.log('🔍 isUser() appelé:', result);
+    console.log('🔍 User actuel:', user);
+    console.log('🔍 Rôle détecté:', user?.role);
+    return result;
   };
 
   const getDisplayName = () => {
-    if (!user) return 'Utilisateur';
-    if (user.role === 'agent') return 'Partenaire';
-    if (user.role === 'subprovider') return 'Subprovider';
-    return user.displayName || user.username || user.email;
+    return authService.getDisplayName();
   };
 
   const getAccountInfo = () => {
-    return user?.account_name || 'Aucun compte';
+    return authService.getAccountInfo();
   };
 
   const value = {
@@ -75,8 +96,10 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     isAuthenticated,
+    isAdmin,
     isSubprovider,
-    isAgent,
+    isPartner,
+    isUser,
     getDisplayName,
     getAccountInfo
   };
