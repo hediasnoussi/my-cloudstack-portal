@@ -1,0 +1,111 @@
+nohup: les entrées sont ignorées
+[dotenv@17.2.1] injecting env (4) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+🚀 Démarrage du serveur CloudStack...
+✅ Middleware de base configuré
+✅ Routes de base configurées
+🔄 Chargement des routes CloudStack compute...
+[dotenv@17.2.1] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+✅ CloudStack compute routes loaded
+🔄 Chargement des routes globales CloudStack...
+✅ Global CloudStack routes loaded
+✅ Toutes les routes CloudStack ont été traitées
+🚀 Démarrage de l'écoute sur le port 3001
+✅ Server running on port 3001
+📚 API Documentation: http://localhost:3001
+🌐 Server accessible at: http://127.0.0.1:3001
+🎉 Serveur CloudStack prêt à recevoir des requêtes !
+🔗 Endpoints disponibles:
+   - /api/cloudstack/instances (liste des instances)
+   - /api/cloudstack/templates (liste des templates)
+   - /api/cloudstack/service-offerings (offres de service)
+   - /api/cloudstack/zones (zones disponibles)
+   - /api/global/domains (domaines CloudStack)
+   - /api/global/accounts (comptes CloudStack)
+🖥️ Récupération des instances depuis CloudStack...
+🌐 CloudStack API Request: listVirtualMachines
+URL: http://172.21.23.1/client/api?apikey=t2hpRTeUKriGGhUlD5onpNOWoEtJ8v3j759mcHlAocz37lwL7ZJtyQ_ABYSM3KWSOIlu4KR3ILiWMUtX9CUHdQ&command=listVirtualMachines&response=json&signature=GhP7TDHB0cLkvEKwS421%2BaCj%2BHY%3D
+✅ CloudStack API Response: 200
+✅ 0 instances récupérées
+📋 Récupération des templates disponibles...
+🌐 CloudStack API Request: listTemplates
+URL: http://172.21.23.1/client/api?templatefilter=featured&apikey=t2hpRTeUKriGGhUlD5onpNOWoEtJ8v3j759mcHlAocz37lwL7ZJtyQ_ABYSM3KWSOIlu4KR3ILiWMUtX9CUHdQ&command=listTemplates&response=json&signature=yvdI0JZ06wVmyeDPhfRK7Cu%2FgO4%3D
+✅ CloudStack API Response: 200
+✅ 0 templates récupérés
+📍 Récupération des zones disponibles...
+🌐 CloudStack API Request: listZones
+URL: http://172.21.23.1/client/api?apikey=t2hpRTeUKriGGhUlD5onpNOWoEtJ8v3j759mcHlAocz37lwL7ZJtyQ_ABYSM3KWSOIlu4KR3ILiWMUtX9CUHdQ&command=listZones&response=json&signature=v4Xj8tRjUuIRdd23SpUVgfv2bic%3D
+✅ CloudStack API Response: 200
+✅ 1 zones récupérées
+📋 Récupération des templates disponibles...
+🌐 CloudStack API Request: listTemplates
+URL: http://172.21.23.1/client/api?templatefilter=featured&apikey=t2hpRTeUKriGGhUlD5onpNOWoEtJ8v3j759mcHlAocz37lwL7ZJtyQ_ABYSM3KWSOIlu4KR3ILiWMUtX9CUHdQ&command=listTemplates&response=json&signature=yvdI0JZ06wVmyeDPhfRK7Cu%2FgO4%3D
+✅ CloudStack API Response: 200
+✅ 0 templates récupérés
+📋 Récupération des templates disponibles...
+🌐 CloudStack API Request: listTemplates
+URL: http://172.21.23.1/client/api?templatefilter=featured&apikey=t2hpRTeUKriGGhUlD5onpNOWoEtJ8v3j759mcHlAocz37lwL7ZJtyQ_ABYSM3KWSOIlu4KR3ILiWMUtX9CUHdQ&command=listTemplates&response=json&signature=yvdI0JZ06wVmyeDPhfRK7Cu%2FgO4%3D
+✅ CloudStack API Response: 200
+✅ 0 templates récupérés
+📋 Récupération des templates disponibles...
+🌐 CloudStack API Request: listTemplates
+URL: http://172.21.23.1/client/api?templatefilter=featured&apikey=t2hpRTeUKriGGhUlD5onpNOWoEtJ8v3j759mcHlAocz37lwL7ZJtyQ_ABYSM3KWSOIlu4KR3ILiWMUtX9CUHdQ&command=listTemplates&response=json&signature=yvdI0JZ06wVmyeDPhfRK7Cu%2FgO4%3D
+✅ CloudStack API Response: 200
+✅ 0 templates récupérés
+💼 Récupération des offres de service...
+🌐 CloudStack API Request: listServiceOfferings
+URL: http://172.21.23.1/client/api?apikey=t2hpRTeUKriGGhUlD5onpNOWoEtJ8v3j759mcHlAocz37lwL7ZJtyQ_ABYSM3KWSOIlu4KR3ILiWMUtX9CUHdQ&command=listServiceOfferings&response=json&signature=h7SNLfQztOc0OcisVIDREzDXJso%3D
+✅ CloudStack API Response: 200
+✅ 2 offres de service récupérées
+📍 Récupération des zones disponibles...
+🌐 CloudStack API Request: listZones
+URL: http://172.21.23.1/client/api?apikey=t2hpRTeUKriGGhUlD5onpNOWoEtJ8v3j759mcHlAocz37lwL7ZJtyQ_ABYSM3KWSOIlu4KR3ILiWMUtX9CUHdQ&command=listZones&response=json&signature=v4Xj8tRjUuIRdd23SpUVgfv2bic%3D
+✅ CloudStack API Response: 200
+✅ 1 zones récupérées
+🖥️ Récupération des instances depuis CloudStack...
+🌐 CloudStack API Request: listVirtualMachines
+URL: http://172.21.23.1/client/api?apikey=t2hpRTeUKriGGhUlD5onpNOWoEtJ8v3j759mcHlAocz37lwL7ZJtyQ_ABYSM3KWSOIlu4KR3ILiWMUtX9CUHdQ&command=listVirtualMachines&response=json&signature=GhP7TDHB0cLkvEKwS421%2BaCj%2BHY%3D
+✅ CloudStack API Response: 200
+✅ 0 instances récupérées
+🖥️ Récupération des instances depuis CloudStack...
+🌐 CloudStack API Request: listVirtualMachines
+URL: http://172.21.23.1/client/api?apikey=t2hpRTeUKriGGhUlD5onpNOWoEtJ8v3j759mcHlAocz37lwL7ZJtyQ_ABYSM3KWSOIlu4KR3ILiWMUtX9CUHdQ&command=listVirtualMachines&response=json&signature=GhP7TDHB0cLkvEKwS421%2BaCj%2BHY%3D
+✅ CloudStack API Response: 200
+✅ 0 instances récupérées
+📋 Récupération des templates disponibles...
+🌐 CloudStack API Request: listTemplates
+URL: http://172.21.23.1/client/api?templatefilter=featured&apikey=t2hpRTeUKriGGhUlD5onpNOWoEtJ8v3j759mcHlAocz37lwL7ZJtyQ_ABYSM3KWSOIlu4KR3ILiWMUtX9CUHdQ&command=listTemplates&response=json&signature=yvdI0JZ06wVmyeDPhfRK7Cu%2FgO4%3D
+✅ CloudStack API Response: 200
+✅ 0 templates récupérés
+📋 Récupération des templates disponibles...
+🌐 CloudStack API Request: listTemplates
+URL: http://172.21.23.1/client/api?templatefilter=featured&apikey=t2hpRTeUKriGGhUlD5onpNOWoEtJ8v3j759mcHlAocz37lwL7ZJtyQ_ABYSM3KWSOIlu4KR3ILiWMUtX9CUHdQ&command=listTemplates&response=json&signature=yvdI0JZ06wVmyeDPhfRK7Cu%2FgO4%3D
+✅ CloudStack API Response: 200
+✅ 0 templates récupérés
+📋 Récupération des templates disponibles...
+🌐 CloudStack API Request: listTemplates
+URL: http://172.21.23.1/client/api?templatefilter=featured&apikey=t2hpRTeUKriGGhUlD5onpNOWoEtJ8v3j759mcHlAocz37lwL7ZJtyQ_ABYSM3KWSOIlu4KR3ILiWMUtX9CUHdQ&command=listTemplates&response=json&signature=yvdI0JZ06wVmyeDPhfRK7Cu%2FgO4%3D
+✅ CloudStack API Response: 200
+✅ 0 templates récupérés
+📋 Récupération des templates disponibles...
+🌐 CloudStack API Request: listTemplates
+URL: http://172.21.23.1/client/api?templatefilter=featured&apikey=t2hpRTeUKriGGhUlD5onpNOWoEtJ8v3j759mcHlAocz37lwL7ZJtyQ_ABYSM3KWSOIlu4KR3ILiWMUtX9CUHdQ&command=listTemplates&response=json&signature=yvdI0JZ06wVmyeDPhfRK7Cu%2FgO4%3D
+✅ CloudStack API Response: 200
+✅ 0 templates récupérés
+📋 Récupération des templates disponibles...
+🌐 CloudStack API Request: listTemplates
+URL: http://172.21.23.1/client/api?templatefilter=featured&apikey=t2hpRTeUKriGGhUlD5onpNOWoEtJ8v3j759mcHlAocz37lwL7ZJtyQ_ABYSM3KWSOIlu4KR3ILiWMUtX9CUHdQ&command=listTemplates&response=json&signature=yvdI0JZ06wVmyeDPhfRK7Cu%2FgO4%3D
+✅ CloudStack API Response: 200
+✅ 0 templates récupérés
+📋 Récupération des templates disponibles...
+🌐 CloudStack API Request: listTemplates
+URL: http://172.21.23.1/client/api?templatefilter=featured&apikey=t2hpRTeUKriGGhUlD5onpNOWoEtJ8v3j759mcHlAocz37lwL7ZJtyQ_ABYSM3KWSOIlu4KR3ILiWMUtX9CUHdQ&command=listTemplates&response=json&signature=yvdI0JZ06wVmyeDPhfRK7Cu%2FgO4%3D
+✅ CloudStack API Response: 200
+✅ 0 templates récupérés
+📋 Récupération des templates disponibles...
+🌐 CloudStack API Request: listTemplates
+URL: http://172.21.23.1/client/api?templatefilter=featured&apikey=t2hpRTeUKriGGhUlD5onpNOWoEtJ8v3j759mcHlAocz37lwL7ZJtyQ_ABYSM3KWSOIlu4KR3ILiWMUtX9CUHdQ&command=listTemplates&response=json&signature=yvdI0JZ06wVmyeDPhfRK7Cu%2FgO4%3D
+✅ CloudStack API Response: 200
+✅ 0 templates récupérés
+
+🛑 Arrêt du serveur...
+✅ Serveur arrêté proprement
