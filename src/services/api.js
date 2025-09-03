@@ -93,12 +93,9 @@ export const apiService = {
   // Storage endpoints
   getVolumes: () => api.get('/api/storage/volumes'),
   getSnapshots: () => api.get('/api/storage/snapshots'),
-  getBackups: () => api.get('/api/storage/backups'),
+
   
-  // Network endpoints
-  getNetworks: () => api.get('/api/network/networks'),
-  getVPCs: () => api.get('/api/network/vpcs'),
-  getLoadBalancers: () => api.get('/api/network/loadbalancers'),
+
   
   // Projects endpoints
   getProjects: () => api.get('/api/projects'),

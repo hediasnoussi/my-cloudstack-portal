@@ -14,13 +14,13 @@
     "projects": "Projets",
     "testApi": "Test API",
     "instances": "Instances",
-    "instanceSnapshots": "Instantanés d'instances",
+    "instanceSnapshots": "VPS Snapshots",
     "instanceGroups": "Groupes d'instances",
     "sshKeyPairs": "Paires de clés SSH",
     "userData": "Données utilisateur",
     "volumes": "Volumes",
-    "volumeSnapshots": "Instantanés de volumes",
-    "backups": "Sauvegardes",
+    "volumeSnapshots": "Volume Snapshots",
+
     "guestNetworks": "Réseaux invités",
     "networks": "Réseaux",
     "publicIps": "IPs Publiques",
@@ -288,7 +288,7 @@
     "instanceCreatedSuccess": "Instance créée avec succès !"
   },
   "instances": {
-    "title": "Instances",
+    "title": "VPS",
     "name": "Nom",
     "state": "État",
     "zone": "Zone",
@@ -297,8 +297,8 @@
     "actions": "Actions",
     "newInstance": "Nouveau VPS",
     "refresh": "Actualiser",
-    "editInstance": "Modifier l'instance",
-    "deleteInstance": "Supprimer l'instance",
+    "editInstance": "Modifier le VPS",
+    "deleteInstance": "Supprimer le VPS",
     "viewDetails": "Voir les détails"
   },
   "snapshots": {

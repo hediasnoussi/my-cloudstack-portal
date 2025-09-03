@@ -38,20 +38,12 @@ import {
   KubernetesCluster,
   AutoscalingGroup,
   InstanceGroup,
-  SSHKeyPair,
-  UserData,
   // Types Storage
   Volume,
   Backup,
   Bucket,
   SharedFileSystem,
-  // Types Network
-  Network,
-  VPC,
-  SecurityGroup,
-  LoadBalancer,
-  VPN,
-  PublicIP,
+
   // Types Analytics
   ProjectAnalytics,
   CostAnalysis
@@ -223,17 +215,7 @@ export const apiService = {
   getInstanceGroupById: (id: number): Promise<AxiosResponse<ApiResponse<InstanceGroup>>> => 
     api.get(`/api/compute/instance-groups/${id}`),
   
-  // Compute endpoints - SSH Keys
-  getSSHKeyPairs: (filters?: any): Promise<AxiosResponse<ApiListResponse<SSHKeyPair>>> => 
-    api.get('/api/compute/ssh-key-pairs', { params: filters }),
-  getSSHKeyPairById: (id: number): Promise<AxiosResponse<ApiResponse<SSHKeyPair>>> => 
-    api.get(`/api/compute/ssh-key-pairs/${id}`),
-  
-  // Compute endpoints - User Data
-  getUserData: (filters?: any): Promise<AxiosResponse<ApiListResponse<UserData>>> => 
-    api.get('/api/compute/user-data', { params: filters }),
-  getUserDataById: (id: number): Promise<AxiosResponse<ApiResponse<UserData>>> => 
-    api.get(`/api/compute/user-data/${id}`),
+
   
   // Storage endpoints - Volumes
   getVolumes: (filters?: any): Promise<AxiosResponse<ApiListResponse<Volume>>> => 
@@ -247,11 +229,7 @@ export const apiService = {
   getSnapshotById: (id: number): Promise<AxiosResponse<ApiResponse<Snapshot>>> => 
     api.get(`/api/storage/snapshots/${id}`),
   
-  // Storage endpoints - Backups
-  getBackups: (filters?: any): Promise<AxiosResponse<ApiListResponse<Backup>>> => 
-    api.get('/api/storage/backups', { params: filters }),
-  getBackupById: (id: number): Promise<AxiosResponse<ApiResponse<Backup>>> => 
-    api.get(`/api/storage/backups/${id}`),
+
   
   // Storage endpoints - Buckets
   getBuckets: (filters?: any): Promise<AxiosResponse<ApiListResponse<Bucket>>> => 
@@ -265,41 +243,7 @@ export const apiService = {
   getSharedFileSystemById: (id: number): Promise<AxiosResponse<ApiResponse<SharedFileSystem>>> => 
     api.get(`/api/storage/shared-file-systems/${id}`),
   
-  // Network endpoints - Networks
-  getNetworks: (filters?: any): Promise<AxiosResponse<ApiListResponse<Network>>> => 
-    api.get('/api/network/networks', { params: filters }),
-  getNetworkById: (id: number): Promise<AxiosResponse<ApiResponse<Network>>> => 
-    api.get(`/api/network/networks/${id}`),
-  
-  // Network endpoints - VPCs
-  getVPCs: (filters?: any): Promise<AxiosResponse<ApiListResponse<VPC>>> => 
-    api.get('/api/network/vpcs', { params: filters }),
-  getVPCById: (id: number): Promise<AxiosResponse<ApiResponse<VPC>>> => 
-    api.get(`/api/network/vpcs/${id}`),
-  
-  // Network endpoints - Security Groups
-  getSecurityGroups: (filters?: any): Promise<AxiosResponse<ApiListResponse<SecurityGroup>>> => 
-    api.get('/api/network/security-groups', { params: filters }),
-  getSecurityGroupById: (id: number): Promise<AxiosResponse<ApiResponse<SecurityGroup>>> => 
-    api.get(`/api/network/security-groups/${id}`),
-  
-  // Network endpoints - Load Balancers
-  getLoadBalancers: (filters?: any): Promise<AxiosResponse<ApiListResponse<LoadBalancer>>> => 
-    api.get('/api/network/loadbalancers', { params: filters }),
-  getLoadBalancerById: (id: number): Promise<AxiosResponse<ApiResponse<LoadBalancer>>> => 
-    api.get(`/api/network/loadbalancers/${id}`),
-  
-  // Network endpoints - VPNs
-  getVPNs: (filters?: any): Promise<AxiosResponse<ApiListResponse<VPN>>> => 
-    api.get('/api/network/vpns', { params: filters }),
-  getVPNById: (id: number): Promise<AxiosResponse<ApiResponse<VPN>>> => 
-    api.get(`/api/network/vpns/${id}`),
-  
-  // Network endpoints - Public IPs
-  getPublicIPs: (filters?: any): Promise<AxiosResponse<ApiListResponse<PublicIP>>> => 
-    api.get('/api/network/public-ips', { params: filters }),
-  getPublicIPById: (id: number): Promise<AxiosResponse<ApiResponse<PublicIP>>> => 
-    api.get(`/api/network/public-ips/${id}`),
+
   
   // Analytics endpoints
   getProjectAnalytics: (projectId: number): Promise<AxiosResponse<ApiResponse<ProjectAnalytics>>> => 

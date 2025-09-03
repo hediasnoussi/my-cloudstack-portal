@@ -37,18 +37,6 @@ router.post('/instance-groups', computeController.createInstanceGroup);
 router.put('/instance-groups/:id', computeController.updateInstanceGroup);
 router.delete('/instance-groups/:id', computeController.deleteInstanceGroup);
 
-// ===== SSH KEY PAIRS ROUTES =====
-router.get('/ssh-key-pairs', computeController.getAllSshKeyPairs);
-router.get('/ssh-key-pairs/:id', computeController.getSshKeyPairById);
-router.post('/ssh-key-pairs', computeController.createSshKeyPair);
-router.put('/ssh-key-pairs/:id', computeController.updateSshKeyPair);
-router.delete('/ssh-key-pairs/:id', computeController.deleteSshKeyPair);
 
-// ===== USER DATA ROUTES =====
-router.get('/user-data', computeController.getAllUserData);
-router.get('/user-data/:id', computeController.getUserDataById);
-router.post('/user-data', computeController.createUserData);
-router.put('/user-data/:id', computeController.updateUserData);
-router.delete('/user-data/:id', computeController.deleteUserData);
 
 module.exports = router; 

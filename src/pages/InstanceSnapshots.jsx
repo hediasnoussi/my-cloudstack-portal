@@ -24,7 +24,8 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  FormHelperText
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -36,6 +37,7 @@ import {
   Download as DownloadIcon
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import cloudstackService from '../services/cloudstackService';
 
 const InstanceSnapshots = () => {
   const { t } = useTranslation();
@@ -48,46 +50,68 @@ const InstanceSnapshots = () => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    instance_name: '',
-    state: 'ready'
+    volumeid: ''
   });
+  const [volumes, setVolumes] = useState([]);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   useEffect(() => {
     fetchSnapshots();
+    fetchVolumes();
   }, []);
 
   const fetchSnapshots = async () => {
     try {
       setLoading(true);
-      // Simuler des données de snapshots
-      const mockSnapshots = [
-        {
-          id: 1,
-          name: 'Web Server Backup',
-          description: 'Snapshot avant mise à jour système',
-          instance_name: 'Web Server 1',
-          state: 'ready',
-          size: '2.5 GB',
-          created_at: '15/01/2024'
-        },
-        {
-          id: 2,
-          name: 'Database Snapshot',
-          description: 'Sauvegarde de la base de données',
-          instance_name: 'Database Server',
-          state: 'inProgress',
-          size: '5.2 GB',
-          created_at: '14/01/2024'
-        }
-      ];
-      setSnapshots(mockSnapshots);
+      console.log('🔄 Chargement des snapshots CloudStack (utilisés comme VPS snapshots)...');
+      
+      // Récupérer les snapshots de volumes CloudStack (utilisés comme VPS snapshots)
+      const cloudstackSnapshots = await cloudstackService.getSnapshots();
+      console.log('✅ Snapshots CloudStack récupérés:', cloudstackSnapshots);
+      
+      // Transformer les données CloudStack en format compatible
+      const transformedSnapshots = cloudstackSnapshots.map(snapshot => ({
+        id: snapshot.id,
+        name: snapshot.name,
+        description: snapshot.description || 'Aucune description',
+        instance_name: snapshot.volumeName || 'N/A', // Nom du volume snapshoté (présenté comme VPS)
+        state: snapshot.state,
+        size: snapshot.size || 'N/A',
+        created_at: snapshot.created,
+        volumeId: snapshot.volumeId,
+        volumeName: snapshot.volumeName,
+        account: snapshot.account,
+        domain: snapshot.domain,
+        revertable: snapshot.revertable,
+        type: snapshot.type
+      }));
+      
+      console.log('✅ Snapshots transformés comme VPS snapshots:', transformedSnapshots);
+      setSnapshots(transformedSnapshots);
       setError(null);
     } catch (err) {
-      setError(`${t('common.error')}: ${err.message}`);
-      console.error('Error fetching snapshots:', err);
+      console.error('❌ Erreur lors du chargement des snapshots CloudStack:', err);
+      setError('Erreur lors du chargement des VPS snapshots');
+      setSnapshots([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchVolumes = async () => {
+    try {
+      console.log('🔄 Chargement des volumes CloudStack...');
+      const cloudstackVolumes = await cloudstackService.getVolumes();
+      console.log('✅ Volumes CloudStack récupérés:', cloudstackVolumes);
+      
+      // Filtrer seulement les volumes prêts pour les snapshots
+      const readyVolumes = cloudstackVolumes.filter(volume => 
+        volume.state === 'Ready' && volume.type === 'DATADISK'
+      );
+      
+      setVolumes(readyVolumes);
+    } catch (err) {
+      console.error('❌ Erreur lors du chargement des volumes CloudStack:', err);
     }
   };
 
@@ -98,16 +122,14 @@ const InstanceSnapshots = () => {
       setFormData({
         name: snapshot.name,
         description: snapshot.description,
-        instance_name: snapshot.instance_name,
-        state: snapshot.state
+        volumeid: snapshot.volumeid || ''
       });
     } else {
       setSelectedSnapshot(null);
       setFormData({
         name: '',
         description: '',
-        instance_name: '',
-        state: 'ready'
+        volumeid: ''
       });
     }
     setOpenDialog(true);
@@ -119,45 +141,64 @@ const InstanceSnapshots = () => {
     setFormData({
       name: '',
       description: '',
-      instance_name: '',
-      state: 'ready'
+      volumeid: ''
     });
   };
 
   const handleSubmit = async () => {
     try {
       if (dialogMode === 'create') {
-        // Simuler la création
-        const newSnapshot = {
-          id: Date.now(),
-          ...formData,
-          size: '0 GB',
-          created_at: new Date().toLocaleDateString('fr-FR')
+        // Créer un nouveau snapshot de volume via CloudStack (utilisé comme VPS snapshot)
+        const snapshotData = {
+          name: formData.name,
+          description: formData.description,
+          volumeid: formData.volumeid // ID du volume à snapshoter
         };
-        setSnapshots([...snapshots, newSnapshot]);
-        setSnackbar({ open: true, message: t('snapshots.newSnapshot') + ' ' + t('common.success'), severity: 'success' });
+        
+        await cloudstackService.createSnapshot(snapshotData);
+        setSnackbar({ open: true, message: 'VPS Snapshot créé avec succès', severity: 'success' });
+        
+        // Rafraîchir la liste des snapshots
+        fetchSnapshots();
       } else {
-        // Simuler la modification
-        setSnapshots(snapshots.map(s => s.id === selectedSnapshot.id ? { ...s, ...formData } : s));
-        setSnackbar({ open: true, message: t('snapshots.edit') + ' ' + t('common.success'), severity: 'success' });
+        // Note: CloudStack ne permet pas de modifier directement les snapshots
+        setSnackbar({ open: true, message: 'Modification des VPS snapshots non supportée par CloudStack', severity: 'warning' });
       }
       handleCloseDialog();
     } catch (err) {
-      setSnackbar({ open: true, message: t('common.error'), severity: 'error' });
+      console.error('Erreur lors de la création/modification du VPS snapshot:', err);
+      setSnackbar({ open: true, message: `Erreur: ${err.message}`, severity: 'error' });
     }
   };
 
   const handleDelete = async (id) => {
-    try {
-      setSnapshots(snapshots.filter(s => s.id !== id));
-      setSnackbar({ open: true, message: t('snapshots.delete') + ' ' + t('common.success'), severity: 'success' });
-    } catch (err) {
-      setSnackbar({ open: true, message: t('common.error'), severity: 'error' });
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce VPS Snapshot ?')) {
+      try {
+        await cloudstackService.deleteSnapshot(id);
+        setSnackbar({ open: true, message: 'VPS Snapshot supprimé avec succès', severity: 'success' });
+        
+        // Rafraîchir la liste des snapshots
+        fetchSnapshots();
+      } catch (err) {
+        console.error('Erreur lors de la suppression du VPS snapshot:', err);
+        setSnackbar({ open: true, message: `Erreur: ${err.message}`, severity: 'error' });
+      }
     }
   };
 
-  const handleRestore = (snapshotId) => {
-    setSnackbar({ open: true, message: t('snapshots.revert') + ' ' + t('common.success'), severity: 'success' });
+  const handleRestore = async (snapshotId) => {
+    if (window.confirm('Êtes-vous sûr de vouloir restaurer ce VPS Snapshot ? Cette action remplacera les données actuelles.')) {
+      try {
+        await cloudstackService.revertSnapshot(snapshotId);
+        setSnackbar({ open: true, message: 'VPS Snapshot restauré avec succès', severity: 'success' });
+        
+        // Rafraîchir la liste des snapshots
+        fetchSnapshots();
+      } catch (err) {
+        console.error('Erreur lors de la restauration du VPS snapshot:', err);
+        setSnackbar({ open: true, message: `Erreur: ${err.message}`, severity: 'error' });
+      }
+    }
   };
 
   const handleDownload = (snapshotId) => {
@@ -165,28 +206,34 @@ const InstanceSnapshots = () => {
   };
 
   const getStateColor = (state) => {
-    switch (state) {
+    switch (state?.toLowerCase()) {
+      case 'backedup':
       case 'ready':
         return 'success';
-      case 'inProgress':
+      case 'creating':
+      case 'backingup':
         return 'warning';
       case 'error':
+      case 'failed':
         return 'error';
-      default:
+      default: 
         return 'default';
     }
   };
 
   const getStateLabel = (state) => {
-    switch (state) {
+    switch (state?.toLowerCase()) {
+      case 'backedup':
       case 'ready':
-        return t('snapshots.ready');
-      case 'inProgress':
-        return t('snapshots.inProgress');
+        return 'Prêt';
+      case 'creating':
+      case 'backingup':
+        return 'En cours';
       case 'error':
-        return t('snapshots.error');
-      default:
-        return state;
+      case 'failed':
+        return 'Erreur';
+      default: 
+        return state || 'Inconnu';
     }
   };
 
@@ -203,7 +250,7 @@ const InstanceSnapshots = () => {
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4" sx={{ fontWeight: 700, color: 'white' }}>
-          {t('instanceSnapshots.title')}
+          VPS Snapshots
         </Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Button
@@ -251,7 +298,7 @@ const InstanceSnapshots = () => {
               <TableCell sx={{ fontWeight: 600, color: '#374151' }}>{t('snapshots.id')}</TableCell>
               <TableCell sx={{ fontWeight: 600, color: '#374151' }}>{t('snapshots.name')}</TableCell>
               <TableCell sx={{ fontWeight: 600, color: '#374151' }}>{t('snapshots.description')}</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#374151' }}>{t('snapshots.instance')}</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#374151' }}>VPS</TableCell>
               <TableCell sx={{ fontWeight: 600, color: '#374151' }}>{t('snapshots.size')}</TableCell>
               <TableCell sx={{ fontWeight: 600, color: '#374151' }}>{t('snapshots.status')}</TableCell>
               <TableCell sx={{ fontWeight: 600, color: '#374151' }}>{t('snapshots.creationDate')}</TableCell>
@@ -273,7 +320,15 @@ const InstanceSnapshots = () => {
                     size="small" 
                   />
                 </TableCell>
-                <TableCell>{snapshot.created_at}</TableCell>
+                <TableCell>
+                  {snapshot.created_at ? new Date(snapshot.created_at).toLocaleDateString('fr-FR', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  }) : 'N/A'}
+                </TableCell>
                 <TableCell>
                   <Box sx={{ display: 'flex', gap: 1 }}>
                     <Tooltip title={t('snapshots.view')}>
@@ -290,7 +345,7 @@ const InstanceSnapshots = () => {
                         <EditIcon />
                       </IconButton>
                     </Tooltip>
-                    {snapshot.state === 'ready' && (
+                    {(snapshot.state === 'ready' || snapshot.state === 'BackedUp') && (
                       <>
                         <Tooltip title={t('snapshots.revert')}>
                           <IconButton 
@@ -329,6 +384,17 @@ const InstanceSnapshots = () => {
         </Table>
       </TableContainer>
 
+      {snapshots.length === 0 && !loading && (
+        <Box textAlign="center" py={4}>
+          <Typography variant="h6" color="textSecondary">
+            Aucun snapshot trouvé
+          </Typography>
+          <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+            Créez votre premier snapshot pour commencer
+          </Typography>
+        </Box>
+      )}
+
       {/* Dialog pour créer/modifier */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
@@ -352,25 +418,22 @@ const InstanceSnapshots = () => {
               rows={3}
               sx={{ mb: 2 }}
             />
-            <TextField
-              fullWidth
-              label={t('snapshots.instance')}
-              value={formData.instance_name}
-              onChange={(e) => setFormData({ ...formData, instance_name: e.target.value })}
-              sx={{ mb: 2 }}
-            />
-            <FormControl fullWidth>
-              <InputLabel>{t('snapshots.status')}</InputLabel>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Volume à snapshoter</InputLabel>
               <Select
-                value={formData.state}
-                label={t('snapshots.status')}
-                onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                value={formData.volumeid || ''}
+                label="Volume à snapshoter"
+                onChange={(e) => setFormData({ ...formData, volumeid: e.target.value })}
               >
-                <MenuItem value="ready">{t('snapshots.ready')}</MenuItem>
-                <MenuItem value="inProgress">{t('snapshots.inProgress')}</MenuItem>
-                <MenuItem value="error">{t('snapshots.error')}</MenuItem>
+                {volumes.map((volume) => (
+                  <MenuItem key={volume.id} value={volume.id}>
+                    {volume.name} ({volume.size ? Math.round(volume.size / 1024 / 1024 / 1024) + ' GB' : 'N/A'})
+                  </MenuItem>
+                ))}
               </Select>
+              <FormHelperText>Sélectionnez le volume CloudStack à sauvegarder</FormHelperText>
             </FormControl>
+
           </Box>
         </DialogContent>
         <DialogActions>

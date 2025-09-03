@@ -22,7 +22,6 @@ app.get('/', (req, res) => {
       global: '/api/global',
       compute: '/api/compute',
       storage: '/api/storage',
-      network: '/api/network',
       projects: '/api/projects'
     }
   });
@@ -73,15 +72,7 @@ try {
   console.log('❌ Stack:', error.stack);
 }
 
-try {
-  console.log('🔄 Chargement des routes network...');
-  const networkRoutes = require('./routes/network');
-  app.use('/api/network', networkRoutes);
-  console.log('✅ Network routes loaded');
-} catch (error) {
-  console.log('❌ Error loading network routes:', error.message);
-  console.log('❌ Stack:', error.stack);
-}
+
 
 try {
   console.log('🔄 Chargement des routes projects...');

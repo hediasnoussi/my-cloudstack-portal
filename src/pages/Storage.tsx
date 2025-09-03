@@ -40,10 +40,7 @@ const Storage = () => {
     { id: 2, name: 'database-backup-20240110', volume: 'database-volume-01', size: '500GB', created: '2024-01-10', status: 'BackedUp' }
   ]);
 
-  const [backups] = useState([
-    { id: 1, name: 'full-backup-20240115', type: 'Full', size: '1.2TB', created: '2024-01-15', status: 'Completed' },
-    { id: 2, name: 'incremental-backup-20240116', type: 'Incremental', size: '50GB', created: '2024-01-16', status: 'Completed' }
-  ]);
+
 
   useEffect(() => {
     const loadData = async () => {
@@ -123,9 +120,9 @@ const Storage = () => {
             {[
               { label: 'Volumes', icon: 'fas fa-hdd', index: 0 },
               { label: 'Volume Snapshots', icon: 'fas fa-clone', index: 1 },
-              { label: 'Backups', icon: 'fas fa-shield-alt', index: 2 },
-              { label: 'Buckets', icon: 'fas fa-bucket', index: 3 },
-              { label: 'Shared FileSystem', icon: 'fas fa-folder-open', index: 4 }
+          
+                              { label: 'Buckets', icon: 'fas fa-bucket', index: 2 },
+                { label: 'Shared FileSystem', icon: 'fas fa-folder-open', index: 3 }
             ].map((tab) => (
               <button
                 key={tab.index}
@@ -267,61 +264,10 @@ const Storage = () => {
         </div>
       </TabPanel>
 
-      {/* Backups */}
-      <TabPanel value={tabValue} index={2}>
-        <div className="border-black/12.5 dark:bg-slate-850 dark:shadow-dark-xl shadow-xl relative z-20 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid bg-white bg-clip-border">
-          <div className="border-black/12.5 mb-0 rounded-t-2xl border-b-0 border-solid p-6 pt-4 pb-0">
-            <div className="flex justify-between items-center">
-              <h6 className="capitalize dark:text-white">Backups ({backups.length})</h6>
-              <button className="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200">
-                <i className="fas fa-plus mr-2"></i>
-                Nouvelle Sauvegarde
-              </button>
-            </div>
-          </div>
-          <div className="flex-auto p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {backups.map((backup) => (
-                <div key={backup.id} className="bg-white dark:bg-slate-800 rounded-lg shadow p-6 border border-slate-200 dark:border-slate-700">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-lg font-semibold text-slate-700 dark:text-white">{backup.name}</h4>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStateColor(backup.status)} text-white`}>
-                      {backup.status}
-                    </span>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-slate-600 dark:text-slate-400">Type:</span>
-                      <span className="text-slate-700 dark:text-white font-medium">{backup.type}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600 dark:text-slate-400">Taille:</span>
-                      <span className="text-slate-700 dark:text-white font-medium">{backup.size}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600 dark:text-slate-400">Créé:</span>
-                      <span className="text-slate-700 dark:text-white font-medium">{backup.created}</span>
-                    </div>
-                  </div>
-                  <div className="mt-4 flex space-x-2">
-                    <button className="flex-1 bg-blue-500 hover:bg-blue-700 text-white text-sm py-2 px-3 rounded">
-                      <i className="fas fa-download mr-1"></i>
-                      Télécharger
-                    </button>
-                    <button className="flex-1 bg-red-500 hover:bg-red-700 text-white text-sm py-2 px-3 rounded">
-                      <i className="fas fa-trash mr-1"></i>
-                      Supprimer
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </TabPanel>
+
 
       {/* Autres onglets - Contenu placeholder */}
-      {[3, 4].map((index) => (
+      {[2, 3].map((index) => (
         <TabPanel key={index} value={tabValue} index={index}>
           <div className="border-black/12.5 dark:bg-slate-850 dark:shadow-dark-xl shadow-xl relative z-20 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid bg-white bg-clip-border">
             <div className="border-black/12.5 mb-0 rounded-t-2xl border-b-0 border-solid p-6 pt-4 pb-0">

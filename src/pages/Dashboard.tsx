@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -6,23 +6,25 @@ import {
   CardContent,
   Grid,
   Chip,
-  Paper,
   Button,
-  Alert
+  Alert,
+  CircularProgress
 } from '@mui/material';
 import {
-  TrendingUp as TrendingUpIcon,
+  Computer as ComputerIcon,
   Storage as StorageIcon,
   Cloud as CloudIcon,
   Security as SecurityIcon,
+  Refresh as RefreshIcon,
   CheckCircle as CheckCircleIcon,
-  Computer as ComputerIcon,
-  PlayArrow as PlayArrowIcon,
-  Stop as StopIcon
+  Error as ErrorIcon,
+  Warning as WarningIcon,
+  Info as InfoIcon
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.jsx';
+import cloudstackService from '../services/cloudstackService';
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation();
@@ -30,33 +32,109 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { isAgent } = useAuth();
   
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  
   const vpsCreationDetails = location.state?.vpsCreated ? location.state : null;
 
-  const getStatusColor = () => {
-    return vpsCreationDetails?.startInstance ? 'success' : 'warning';
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      console.log('🔄 Chargement des données CloudStack...');
+
+      // Récupérer toutes les données en parallèle
+      const [instances, volumes, snapshots, events, isos] = await Promise.all([
+        cloudstackService.getVirtualMachines(),
+        cloudstackService.getVolumes(),
+        cloudstackService.getSnapshots(),
+        cloudstackService.getEvents(),
+        cloudstackService.getISOs()
+      ]);
+
+      const cloudStackData = {
+        instances: {
+          total: instances.length,
+          running: instances.filter((inst: any) => inst.state === 'Running').length,
+          stopped: instances.filter((inst: any) => inst.state === 'Stopped').length,
+          error: instances.filter((inst: any) => inst.state === 'Error').length
+        },
+        volumes: {
+          total: volumes.length,
+          attached: volumes.filter((vol: any) => vol.vmname).length,
+          detached: volumes.filter((vol: any) => !vol.vmname).length
+        },
+        snapshots: { total: snapshots.length },
+        events: {
+          total: events.length,
+          info: events.filter((event: any) => event.level === 'INFO').length,
+          warning: events.filter((event: any) => event.level === 'WARNING').length,
+          error: events.filter((event: any) => event.level === 'ERROR').length
+        },
+        isos: { total: isos.length }
+      };
+
+      setData(cloudStackData);
+      setLastUpdate(new Date());
+      console.log('✅ Données CloudStack récupérées:', cloudStackData);
+
+    } catch (err) {
+      console.error('❌ Erreur lors du chargement des données CloudStack:', err);
+      setError(`Erreur lors du chargement des données: ${err instanceof Error ? err.message : 'Erreur inconnue'}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const getStatusText = () => {
-    return vpsCreationDetails?.startInstance ? 'En cours de démarrage' : 'Arrêté';
-  };
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  const getStatusIcon = () => {
-    return vpsCreationDetails?.startInstance ? <PlayArrowIcon /> : <StopIcon />;
-  };
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <Box textAlign="center">
+          <CircularProgress size={60} sx={{ mb: 2 }} />
+          <Typography variant="h6" color="textSecondary">
+            Chargement des données CloudStack...
+          </Typography>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box>
-      {/* En-tête du Dashboard */}
+      {/* En-tête */}
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700, color: '#1e293b', mb: 1 }}>
-          {t('dashboard.title')}
-        </Typography>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h4" sx={{ fontWeight: 600, color: 'white' }}>
+            Dashboard CloudStack
+          </Typography>
+          <Button
+            variant="outlined"
+            startIcon={<RefreshIcon />}
+            onClick={fetchData}
+            disabled={loading}
+          >
+            Actualiser
+          </Button>
+        </Box>
         <Typography variant="body1" sx={{ color: '#64748b' }}>
-          {t('dashboard.welcome')}
+          Données en temps réel de votre infrastructure CloudStack
         </Typography>
+
       </Box>
 
-      {/* VPS Creation Success Alert for Agents and SubProviders */}
+      {error && (
+        <Alert severity="error" sx={{ mb: 4 }}>
+          {error}
+        </Alert>
+      )}
+
+      {/* VPS Creation Success Alert */}
       {vpsCreationDetails && (
         <Alert 
           severity="success" 
@@ -72,183 +150,128 @@ const Dashboard: React.FC = () => {
         </Alert>
       )}
 
-      {/* VPS Details Card for Agents and SubProviders */}
-      {vpsCreationDetails && (
-        <Paper sx={{ p: 3, mb: 4, bgcolor: 'success.50', border: '1px solid', borderColor: 'success.200' }}>
-          <Typography variant="h5" sx={{ fontWeight: 600, color: '#1e293b', mb: 3 }}>
-            {vpsCreationDetails.vpsName}
+      {/* Données CloudStack */}
+      {data ? (
+        <Box>
+          {/* KPIs Principaux */}
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3, mb: 4 }}>
+            <Card sx={{ border: '1px solid #e2e8f0' }}>
+              <CardContent sx={{ textAlign: 'center' }}>
+                <ComputerIcon sx={{ fontSize: 32, color: '#64748b', mb: 1 }} />
+                <Typography variant="h4" sx={{ fontWeight: 600, color: '#1e293b' }}>
+                  {data.instances.total}
+                </Typography>
+                <Typography variant="h6" sx={{ color: '#64748b', mb: 1 }}>
+                  VPS Total
+                </Typography>
+                <Box display="flex" gap={1} justifyContent="center" flexWrap="wrap">
+                  <Chip label={`${data.instances.running} actifs`} variant="outlined" size="small" />
+                  <Chip label={`${data.instances.stopped} arrêtés`} variant="outlined" size="small" />
+                </Box>
+              </CardContent>
+            </Card>
+
+            <Card sx={{ border: '1px solid #e2e8f0' }}>
+              <CardContent sx={{ textAlign: 'center' }}>
+                <StorageIcon sx={{ fontSize: 32, color: '#64748b', mb: 1 }} />
+                <Typography variant="h4" sx={{ fontWeight: 600, color: '#1e293b' }}>
+                  {data.volumes.total}
+                </Typography>
+                <Typography variant="h6" sx={{ color: '#64748b', mb: 1 }}>
+                  Volumes
+                </Typography>
+                <Box display="flex" gap={1} justifyContent="center" flexWrap="wrap">
+                  <Chip label={`${data.volumes.attached} attachés`} variant="outlined" size="small" />
+                  <Chip label={`${data.volumes.detached} détachés`} variant="outlined" size="small" />
+                </Box>
+              </CardContent>
+            </Card>
+
+            <Card sx={{ border: '1px solid #e2e8f0' }}>
+              <CardContent sx={{ textAlign: 'center' }}>
+                <CloudIcon sx={{ fontSize: 32, color: '#64748b', mb: 1 }} />
+                <Typography variant="h4" sx={{ fontWeight: 600, color: '#1e293b' }}>
+                  {data.snapshots.total}
+                </Typography>
+                <Typography variant="h6" sx={{ color: '#64748b', mb: 1 }}>
+                  Snapshots
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  Sauvegardes disponibles
+                </Typography>
+              </CardContent>
+            </Card>
+
+            <Card sx={{ border: '1px solid #e2e8f0' }}>
+              <CardContent sx={{ textAlign: 'center' }}>
+                <SecurityIcon sx={{ fontSize: 32, color: '#64748b', mb: 1 }} />
+                <Typography variant="h4" sx={{ fontWeight: 600, color: '#1e293b' }}>
+                  {data.isos.total}
+                </Typography>
+                <Typography variant="h6" sx={{ color: '#64748b', mb: 1 }}>
+                  ISOs
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  Images disponibles
+                </Typography>
+              </CardContent>
+            </Card>
+          </Box>
+
+          {/* Événements */}
+          <Card sx={{ mb: 4, border: '1px solid #e2e8f0' }}>
+            <CardContent>
+              <Typography variant="h5" sx={{ mb: 3, color: '#1e293b', fontWeight: 600 }}>
+                Événements CloudStack ({data.events.total} total)
+              </Typography>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 2 }}>
+                <Box display="flex" alignItems="center" p={2} sx={{ bgcolor: '#f8fafc', borderRadius: 2, border: '1px solid #e2e8f0' }}>
+                  <InfoIcon sx={{ mr: 2, color: '#64748b' }} />
+                  <Box>
+                    <Typography variant="h4" sx={{ fontWeight: 600, color: '#1e293b' }}>
+                      {data.events.info}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      Informations
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box display="flex" alignItems="center" p={2} sx={{ bgcolor: '#f8fafc', borderRadius: 2, border: '1px solid #e2e8f0' }}>
+                  <WarningIcon sx={{ mr: 2, color: '#64748b' }} />
+                  <Box>
+                    <Typography variant="h4" sx={{ fontWeight: 600, color: '#1e293b' }}>
+                      {data.events.warning}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      Avertissements
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box display="flex" alignItems="center" p={2} sx={{ bgcolor: '#f8fafc', borderRadius: 2, border: '1px solid #e2e8f0' }}>
+                  <ErrorIcon sx={{ mr: 2, color: '#64748b' }} />
+                  <Box>
+                    <Typography variant="h4" sx={{ fontWeight: 600, color: '#1e293b' }}>
+                      {data.events.error}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      Erreurs
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+
+
+        </Box>
+      ) : (
+        <Alert severity="warning" sx={{ mb: 4 }}>
+          <Typography variant="h6">Aucune donnée CloudStack disponible</Typography>
+          <Typography variant="body2">
+            Les données CloudStack n'ont pas pu être récupérées. Vérifiez la connexion à l'API CloudStack.
           </Typography>
-          
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-            <Chip
-              icon={getStatusIcon()}
-              label={getStatusText()}
-              color={getStatusColor()}
-              variant="outlined"
-              sx={{ fontWeight: 600 }}
-            />
-          </Box>
-
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 3, mb: 3 }}>
-            <Box>
-              <Card variant="outlined">
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                    <ComputerIcon color="primary" />
-                    <Typography variant="subtitle2" color="textSecondary">
-                      {t('vpsDetails.template')}
-                    </Typography>
-                  </Box>
-                  <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                    {vpsCreationDetails.template}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Box>
-
-            <Box>
-              <Card variant="outlined">
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                    <StorageIcon color="primary" />
-                    <Typography variant="subtitle2" color="textSecondary">
-                      {t('vpsDetails.computeOffering')}
-                    </Typography>
-                  </Box>
-                  <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                    {vpsCreationDetails.computeOffering}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Box>
-          </Box>
-
-          {/* Quick Actions */}
-          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            <Button
-              variant="contained"
-              startIcon={<PlayArrowIcon />}
-              disabled={vpsCreationDetails.startInstance}
-            >
-              {t('vpsDetails.startVps')}
-            </Button>
-            
-            <Button
-              variant="outlined"
-              startIcon={<StopIcon />}
-              disabled={!vpsCreationDetails.startInstance}
-            >
-              {t('vpsDetails.stopVps')}
-            </Button>
-          </Box>
-        </Paper>
+        </Alert>
       )}
-
-      {/* KPIs en haut */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3, mb: 4 }}>
-        <Card sx={{ 
-          background: 'linear-gradient(135deg, #f5f5dc 0%, #fafaf0 100%)',
-          border: '1px solid #f0f0d0',
-          borderRadius: 2
-        }}>
-          <CardContent sx={{ p: 3 }}>
-            <Typography variant="h6" sx={{ color: '#1e293b', mb: 2, fontWeight: 600 }}>
-              Croissance Infrastructure
-            </Typography>
-            <Typography variant="h3" sx={{ color: '#22c55e', fontWeight: 700, mb: 1 }}>
-              +45.14%
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#64748b' }}>
-              Augmentation des ressources
-            </Typography>
-          </CardContent>
-        </Card>
-
-        <Card sx={{ 
-          background: 'linear-gradient(135deg, #f5f5dc 0%, #fafaf0 100%)',
-          border: '1px solid #f0f0d0',
-          borderRadius: 2
-        }}>
-          <CardContent sx={{ p: 3 }}>
-            <Typography variant="h6" sx={{ color: '#1e293b', mb: 2, fontWeight: 600 }}>
-              Ratio d'Utilisation
-            </Typography>
-            <Typography variant="h3" sx={{ color: '#fbbf24', fontWeight: 700, mb: 1 }}>
-              0.58%
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#64748b' }}>
-              Efficacité des ressources
-            </Typography>
-          </CardContent>
-        </Card>
-
-        <Card sx={{ 
-          background: 'linear-gradient(135deg, #f5f5dc 0%, #fafaf0 100%)',
-          border: '1px solid #f0f0d0',
-          borderRadius: 2
-        }}>
-          <CardContent sx={{ p: 3 }}>
-            <Typography variant="h6" sx={{ color: '#1e293b', mb: 2, fontWeight: 600 }}>
-              Cas de Risque
-            </Typography>
-            <Chip 
-              label="Faible" 
-              color="success"
-              sx={{ 
-                fontSize: '1.2rem', 
-                fontWeight: 600,
-                height: 40,
-                '& .MuiChip-label': { px: 2 }
-              }}
-            />
-            <Typography variant="body2" sx={{ color: '#64748b', mt: 1 }}>
-              Sécurité optimale
-            </Typography>
-          </CardContent>
-        </Card>
-      </Box>
-
-      {/* Contenu principal */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' }, gap: 3 }}>
-        <Card sx={{ height: '400px', p: 3 }}>
-          <Typography variant="h6" sx={{ mb: 2, color: '#1e293b' }}>
-            Évolution des Ressources
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#64748b', mb: 3 }}>
-            Tendances mensuelles
-          </Typography>
-          <Box sx={{ 
-            height: 300, 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            background: 'linear-gradient(135deg, rgba(30, 58, 138, 0.05) 0%, rgba(30, 58, 138, 0.1) 100%)',
-            borderRadius: 2,
-            border: '1px solid rgba(30, 58, 138, 0.2)'
-          }}>
-            <Typography variant="h6" sx={{ color: '#1e293b' }}>
-              Graphique d'Évolution
-            </Typography>
-          </Box>
-        </Card>
-
-        <Card sx={{ height: '400px', p: 3 }}>
-          <Typography variant="h6" sx={{ mb: 2, color: '#1e293b' }}>
-            Aperçu des Ressources
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#64748b', mb: 3 }}>
-            Statistiques de cette semaine
-          </Typography>
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h4" sx={{ fontWeight: 700, color: '#1e293b', mb: 1 }}>
-              67
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#64748b' }}>
-              Instances actives
-            </Typography>
-          </Box>
-        </Card>
-      </Box>
     </Box>
   );
 };

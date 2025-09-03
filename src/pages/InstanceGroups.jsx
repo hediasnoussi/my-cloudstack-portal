@@ -222,8 +222,8 @@ const InstanceGroups = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1">
-          👥 Groupes d'Instances CloudStack
+        <Typography variant="h4" component="h1" sx={{ color: 'white' }}>
+          Groupes d'Instances CloudStack
         </Typography>
         <Box>
           <Button

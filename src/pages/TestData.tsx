@@ -9,7 +9,6 @@ const TestData: React.FC = () => {
     { path: '/dashboard', name: 'Dashboard Principal' },
     { path: '/compute', name: 'Compute Principal' },
     { path: '/storage', name: 'Storage Principal' },
-    { path: '/network', name: 'Network Principal' },
   ];
 
   return (

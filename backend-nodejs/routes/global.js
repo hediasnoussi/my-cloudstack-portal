@@ -13,8 +13,7 @@ router.get('/cloudstack/accounts', cloudstackController.getCloudStackAccounts);
 router.get('/cloudstack/projects', cloudstackController.getCloudStackProjects);
 router.get('/cloudstack/virtual-machines', cloudstackController.getCloudStackVirtualMachines);
 router.get('/cloudstack/volumes', cloudstackController.getCloudStackVolumes);
-router.get('/cloudstack/networks', cloudstackController.getCloudStackNetworks);
-router.get('/cloudstack/security-groups', cloudstackController.getCloudStackSecurityGroups);
+
 
 // Nouvelles routes pour la gestion d'instances
 router.get('/cloudstack/templates', cloudstackController.getCloudStackTemplates);
@@ -34,13 +33,34 @@ router.post('/cloudstack/volumes/:id/attach', cloudstackController.attachCloudSt
 router.post('/cloudstack/volumes/:id/detach', cloudstackController.detachCloudStackVolume);
 router.delete('/cloudstack/volumes/:id', cloudstackController.deleteCloudStackVolume);
 
-// Gestion des réseaux
-router.post('/cloudstack/networks', cloudstackController.createCloudStackNetwork);
-router.delete('/cloudstack/networks/:id', cloudstackController.deleteCloudStackNetwork);
+// Gestion des snapshots
+router.get('/cloudstack/snapshots', cloudstackController.getCloudStackSnapshots);
+router.post('/cloudstack/snapshots', cloudstackController.createCloudStackSnapshot);
+router.delete('/cloudstack/snapshots/:id', cloudstackController.deleteCloudStackSnapshot);
+router.put('/cloudstack/snapshots/:id/revert', cloudstackController.revertCloudStackSnapshot);
 
-// Gestion des groupes de sécurité
-router.post('/cloudstack/security-groups', cloudstackController.createCloudStackSecurityGroup);
-router.delete('/cloudstack/security-groups/:id', cloudstackController.deleteCloudStackSecurityGroup);
+// Gestion des VMSnapshots (instance snapshots)
+router.get('/cloudstack/vm-snapshots', cloudstackController.getCloudStackVMSnapshots);
+router.post('/cloudstack/vm-snapshots', cloudstackController.createCloudStackVMSnapshot);
+router.delete('/cloudstack/vm-snapshots/:id', cloudstackController.deleteCloudStackVMSnapshot);
+router.put('/cloudstack/vm-snapshots/:id/revert', cloudstackController.revertCloudStackVMSnapshot);
+
+// Gestion des groupes d'instances
+router.get('/cloudstack/instance-groups', cloudstackController.getCloudStackInstanceGroups);
+router.post('/cloudstack/instance-groups', cloudstackController.createCloudStackInstanceGroup);
+router.put('/cloudstack/instance-groups/:id', cloudstackController.updateCloudStackInstanceGroup);
+router.delete('/cloudstack/instance-groups/:id', cloudstackController.deleteCloudStackInstanceGroup);
+
+// Gestion des ISOs
+router.get('/cloudstack/isos', cloudstackController.getCloudStackISOs);
+router.post('/cloudstack/isos', cloudstackController.createCloudStackISO);
+router.put('/cloudstack/isos/:id', cloudstackController.updateCloudStackISO);
+router.delete('/cloudstack/isos/:id', cloudstackController.deleteCloudStackISO);
+
+// Gestion des événements CloudStack
+router.get('/cloudstack/events', cloudstackController.getCloudStackEvents);
+
+
 
 // Gestion des templates
 router.post('/cloudstack/templates', cloudstackController.createCloudStackTemplate);

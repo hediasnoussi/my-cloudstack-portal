@@ -118,8 +118,8 @@ const Snapshots = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        Instance Snapshots
+      <Typography variant="h4" gutterBottom sx={{ color: 'white' }}>
+        VPS Snapshots
       </Typography>
 
       <Box sx={{ mb: 3 }}>
@@ -127,19 +127,8 @@ const Snapshots = () => {
           variant="outlined"
           startIcon={<RefreshIcon />}
           onClick={fetchSnapshots}
-          sx={{ mr: 2 }}
         >
           Actualiser
-        </Button>
-        <Button
-          variant="outlined"
-          onClick={() => {
-            console.log('🧪 Test manuel - État actuel des snapshots:', snapshots);
-            fetchSnapshots();
-          }}
-          sx={{ ml: 2 }}
-        >
-          Test API
         </Button>
       </Box>
 

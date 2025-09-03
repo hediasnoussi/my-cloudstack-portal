@@ -33,7 +33,6 @@ import {
   TrendingUp as TrendingUpIcon,
   TrendingDown as TrendingDownIcon,
   Storage as StorageIcon,
-  NetworkCheck as NetworkIcon,
   Security as SecurityIcon,
   Visibility as VisibilityIcon,
   KeyboardArrowDown as ArrowDownIcon,
@@ -43,26 +42,19 @@ import {
   Dashboard as DashboardIcon,
   Computer as ComputerIcon,
   Storage as StorageIcon2,
-  NetworkCheck as NetworkIcon2,
   Settings as SettingsIcon,
   AccountCircle as AccountIcon,
   Security as SecurityIcon2,
-  Backup as BackupIcon,
+
   Image as ImageIcon,
   Event as EventIcon,
   Assessment as AssessmentIcon,
   Group as GroupIcon,
-  VpnKey as VpnKeyIcon,
   DataUsage as DataUsageIcon,
   AutoAwesome as AutoAwesomeIcon,
   CloudQueue as CloudQueueIcon,
   Folder as FolderIcon,
   Storage as StorageIcon3,
-  NetworkCheck as NetworkIcon3,
-  Security as SecurityIcon3,
-  Public as PublicIcon,
-  Balance as BalanceIcon,
-  Code as CodeIcon,
   Backup as BackupIcon2,
   Cloud as CloudIcon2,
   Iso as IsoIcon,
@@ -78,8 +70,6 @@ interface DashboardStats {
   projects: number;
   instances: number;
   volumes: number;
-  networks: number;
-  securityGroups: number;
 }
 
 const drawerWidth = 280;
@@ -94,9 +84,7 @@ const CloudStackDashboard = ({ onLogout }: { onLogout: () => void }) => {
     accounts: 0,
     projects: 0,
     instances: 0,
-    volumes: 0,
-    networks: 0,
-    securityGroups: 0
+    volumes: 0
   });
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<'month' | 'week'>('month');
@@ -295,7 +283,7 @@ const CloudStackDashboard = ({ onLogout }: { onLogout: () => void }) => {
             <ListItemIcon>
               <ComputerIcon />
             </ListItemIcon>
-            <ListItemText primary="Instances" />
+                          <ListItemText primary="VPS" />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
@@ -372,30 +360,7 @@ const CloudStackDashboard = ({ onLogout }: { onLogout: () => void }) => {
             <ListItemText primary="Instance Groups" />
           </ListItemButton>
         </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton 
-            sx={{ borderRadius: 1, mb: 0.5 }}
-            onClick={() => navigate('/compute/ssh-keys')}
-            selected={location.pathname === '/compute/ssh-keys'}
-          >
-            <ListItemIcon>
-              <VpnKeyIcon />
-            </ListItemIcon>
-            <ListItemText primary="SSH Key Pairs" />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton 
-            sx={{ borderRadius: 1, mb: 0.5 }}
-            onClick={() => navigate('/compute/user-data')}
-            selected={location.pathname === '/compute/user-data'}
-          >
-            <ListItemIcon>
-              <CodeIcon />
-            </ListItemIcon>
-            <ListItemText primary="User Data" />
-          </ListItemButton>
-        </ListItem>
+
       </List>
 
       <Divider sx={{ mx: 2, my: 2 }} />
@@ -452,70 +417,14 @@ const CloudStackDashboard = ({ onLogout }: { onLogout: () => void }) => {
             <ListItemIcon>
               <BackupIcon />
             </ListItemIcon>
-            <ListItemText primary="Backups" />
+            
           </ListItemButton>
         </ListItem>
       </List>
 
       <Divider sx={{ mx: 2, my: 2 }} />
 
-      {/* Module Network */}
-      <List sx={{ px: 2, py: 1 }}>
-        <Typography variant="overline" sx={{ px: 2, color: 'text.secondary', fontWeight: 600 }}>
-          Network
-        </Typography>
-        {/* Networks masqué */}
-        {/* <ListItem disablePadding>
-          <ListItemButton sx={{ borderRadius: 1, mb: 0.5 }}>
-            <ListItemIcon>
-              <NetworkIcon3 />
-            </ListItemIcon>
-            <ListItemText primary="Networks" />
-          </ListItemButton>
-        </ListItem> */}
-        {/* Guest Networks masqué */}
-        {/* <ListItem disablePadding>
-          <ListItemButton sx={{ borderRadius: 1, mb: 0.5 }}>
-            <ListItemIcon>
-              <NetworkIcon />
-            </ListItemIcon>
-            <ListItemText primary="Guest Networks" />
-          </ListItemButton>
-        </ListItem> */}
-        <ListItem disablePadding>
-          <ListItemButton sx={{ borderRadius: 1, mb: 0.5 }}>
-            <ListItemIcon>
-              <CloudIcon />
-            </ListItemIcon>
-            <ListItemText primary="VPC" />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton sx={{ borderRadius: 1, mb: 0.5 }}>
-            <ListItemIcon>
-              <SecurityIcon3 />
-            </ListItemIcon>
-            <ListItemText primary="Security Groups" />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton sx={{ borderRadius: 1, mb: 0.5 }}>
-            <ListItemIcon>
-              <PublicIcon />
-            </ListItemIcon>
-            <ListItemText primary="Public IPs" />
-          </ListItemButton>
-        </ListItem>
-        {/* Load Balancers masqué */}
-        {/* <ListItem disablePadding>
-          <ListItemButton sx={{ borderRadius: 1, mb: 0.5 }}>
-            <ListItemIcon>
-              <BalanceIcon />
-            </ListItemIcon>
-            <ListItemText primary="Load Balancers" />
-          </ListItemButton>
-        </ListItem> */}
-      </List>
+
 
       <Divider sx={{ mx: 2, my: 2 }} />
 
@@ -856,7 +765,7 @@ const CloudStackDashboard = ({ onLogout }: { onLogout: () => void }) => {
                   {stats.instances.toLocaleString()}
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#64748b' }}>
-                  Instances actives
+                  VPS actifs
                 </Typography>
               </Box>
 

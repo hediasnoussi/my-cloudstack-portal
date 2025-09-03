@@ -196,21 +196,7 @@ export interface InstanceGroup {
   created_at: string;
 }
 
-export interface SSHKeyPair {
-  id: number;
-  name: string;
-  fingerprint: string;
-  account_id: number;
-  created_at: string;
-}
 
-export interface UserData {
-  id: number;
-  name: string;
-  user_data: string;
-  account_id: number;
-  created_at: string;
-}
 
 // Types pour les modules Storage
 export interface Volume {
@@ -224,14 +210,7 @@ export interface Volume {
   created_at: string;
 }
 
-export interface Backup {
-  id: number;
-  name: string;
-  volume_id: number;
-  state: string;
-  size: number;
-  created_at: string;
-}
+
 
 export interface Bucket {
   id: number;
@@ -252,65 +231,7 @@ export interface SharedFileSystem {
   created_at: string;
 }
 
-// Types pour les modules Network
-export interface Network {
-  id: number;
-  name: string;
-  display_text: string;
-  state: string;
-  network_type: string;
-  zone_id: number;
-  account_id: number;
-  created_at: string;
-}
 
-export interface VPC {
-  id: number;
-  name: string;
-  display_text: string;
-  state: string;
-  cidr: string;
-  zone_id: number;
-  account_id: number;
-  created_at: string;
-}
-
-export interface SecurityGroup {
-  id: number;
-  name: string;
-  description: string;
-  state: string;
-  account_id: number;
-  created_at: string;
-}
-
-export interface LoadBalancer {
-  id: number;
-  name: string;
-  state: string;
-  algorithm: string;
-  account_id: number;
-  network_id: number;
-  created_at: string;
-}
-
-export interface VPN {
-  id: number;
-  name: string;
-  state: string;
-  account_id: number;
-  vpc_id: number;
-  created_at: string;
-}
-
-export interface PublicIP {
-  id: number;
-  ip_address: string;
-  state: string;
-  account_id: number;
-  zone_id: number;
-  created_at: string;
-}
 
 // Types pour les filtres API
 export interface InstanceFilter {
@@ -327,20 +248,13 @@ export interface VolumeFilter {
   account_id?: number;
 }
 
-export interface NetworkFilter {
-  name?: string;
-  state?: string;
-  network_type?: string;
-  account_id?: number;
-  zone_id?: number;
-}
+
 
 // Types pour les statistiques et analytics
 export interface ProjectAnalytics {
   project_id: number;
   total_instances: number;
   total_volumes: number;
-  total_networks: number;
   total_cost: number;
   period: string;
 }
@@ -350,12 +264,9 @@ export interface CostAnalysis {
   total_cost: number;
   compute_cost: number;
   storage_cost: number;
-  network_cost: number;
   period: string;
   breakdown: {
     instances: number;
     volumes: number;
-    networks: number;
-    load_balancers: number;
   };
 } 

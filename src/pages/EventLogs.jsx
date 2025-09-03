@@ -31,10 +31,12 @@ import {
   Error as ErrorIcon,
   CheckCircle as SuccessIcon
 } from '@mui/icons-material';
+import cloudstackService from '../services/cloudstackService';
 
 const EventLogs = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filtering, setFiltering] = useState(false);
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
     level: '',
@@ -46,60 +48,43 @@ const EventLogs = () => {
     fetchLogs();
   }, []);
 
-  const fetchLogs = async () => {
+  const fetchLogs = async (isFiltering = false) => {
     try {
-      setLoading(true);
-      // Simuler des données de logs pour l'instant
-      const mockLogs = [
-        {
-          id: 1,
-          timestamp: '2024-01-15T14:30:00Z',
-          level: 'info',
-          type: 'instance',
-          message: 'Instance "Web Server 1" démarrée avec succès',
-          user: 'admin',
-          details: 'Instance ID: 1, Zone: Zone 1'
-        },
-        {
-          id: 2,
-          timestamp: '2024-01-15T14:25:00Z',
-          level: 'warning',
-          type: 'storage',
-          message: 'Espace disque faible sur le volume principal',
-          user: 'system',
-          details: 'Volume: /dev/sda1, Usage: 85%'
-        },
-        {
-          id: 3,
-          timestamp: '2024-01-15T14:20:00Z',
-          level: 'error',
-          type: 'network',
-          message: 'Échec de connexion au réseau externe',
-          user: 'system',
-          details: 'Interface: eth0, Error: Connection timeout'
-        },
-        {
-          id: 4,
-          timestamp: '2024-01-15T14:15:00Z',
-          level: 'success',
-          type: 'user',
-          message: 'Utilisateur "john.doe" connecté avec succès',
-          user: 'john.doe',
-          details: 'IP: 192.168.1.50, Session ID: 12345'
-        }
-      ];
-      setLogs(mockLogs);
+      if (isFiltering) {
+        setFiltering(true);
+      } else {
+        setLoading(true);
+      }
+      console.log('🔄 Chargement des événements CloudStack...');
+      
+      // Construire les paramètres de filtrage - seulement si non vides
+      const params = {};
+      if (filters.level && filters.level.trim()) params.level = filters.level;
+      if (filters.type && filters.type.trim()) params.type = filters.type;
+      if (filters.search && filters.search.trim()) params.keyword = filters.search;
+      
+      console.log('📋 Paramètres de filtrage:', params);
+      const cloudstackEvents = await cloudstackService.getEvents(params);
+      console.log('✅ Événements CloudStack récupérés:', cloudstackEvents);
+      
+      setLogs(cloudstackEvents);
       setError(null);
     } catch (err) {
-      setError(`Erreur lors du chargement des logs: ${err.message}`);
-      console.error('Error fetching logs:', err);
+      console.error('❌ Erreur lors du chargement des événements CloudStack:', err);
+      setError(`Erreur lors du chargement des événements CloudStack: ${err.message}`);
     } finally {
-      setLoading(false);
+      if (isFiltering) {
+        setFiltering(false);
+      } else {
+        setLoading(false);
+      }
     }
   };
 
   const handleFilterChange = (field, value) => {
     setFilters(prev => ({ ...prev, [field]: value }));
+    // Rafraîchir les données avec les nouveaux filtres après un délai
+    setTimeout(() => fetchLogs(true), 300);
   };
 
   const clearFilters = () => {
@@ -108,57 +93,79 @@ const EventLogs = () => {
       type: '',
       search: ''
     });
+    // Recharger les données sans filtres
+    setTimeout(() => fetchLogs(true), 100);
   };
 
   const getFilteredLogs = () => {
     return logs.filter(log => {
-      const matchesLevel = !filters.level || log.level === filters.level;
-      const matchesType = !filters.type || log.type === filters.type;
+      // Filtrage par niveau (case-insensitive)
+      const matchesLevel = !filters.level || 
+        log.level.toLowerCase() === filters.level.toLowerCase();
+      
+      // Filtrage par type (case-insensitive et recherche partielle)
+      const matchesType = !filters.type || 
+        log.type.toLowerCase().includes(filters.type.toLowerCase());
+      
+      // Filtrage par recherche (message, utilisateur, compte, ressource)
       const matchesSearch = !filters.search || 
         log.message.toLowerCase().includes(filters.search.toLowerCase()) ||
-        log.user.toLowerCase().includes(filters.search.toLowerCase());
+        log.user.toLowerCase().includes(filters.search.toLowerCase()) ||
+        log.account.toLowerCase().includes(filters.search.toLowerCase()) ||
+        log.resourceName.toLowerCase().includes(filters.search.toLowerCase()) ||
+        log.resourceType.toLowerCase().includes(filters.search.toLowerCase());
       
       return matchesLevel && matchesType && matchesSearch;
     });
   };
 
   const getLevelColor = (level) => {
-    switch (level) {
-      case 'info': return 'info';
-      case 'warning': return 'warning';
-      case 'error': return 'error';
-      case 'success': return 'success';
+    switch (level?.toUpperCase()) {
+      case 'INFO': return 'info';
+      case 'WARNING': return 'warning';
+      case 'ERROR': return 'error';
+      case 'DEBUG': return 'default';
       default: return 'default';
     }
   };
 
   const getLevelIcon = (level) => {
-    switch (level) {
-      case 'info': return <InfoIcon />;
-      case 'warning': return <WarningIcon />;
-      case 'error': return <ErrorIcon />;
-      case 'success': return <SuccessIcon />;
+    switch (level?.toUpperCase()) {
+      case 'INFO': return <InfoIcon />;
+      case 'WARNING': return <WarningIcon />;
+      case 'ERROR': return <ErrorIcon />;
+      case 'DEBUG': return <InfoIcon />;
       default: return <InfoIcon />;
     }
   };
 
   const getLevelLabel = (level) => {
-    switch (level) {
-      case 'info': return 'Information';
-      case 'warning': return 'Avertissement';
-      case 'error': return 'Erreur';
-      case 'success': return 'Succès';
-      default: return level;
+    switch (level?.toUpperCase()) {
+      case 'INFO': return 'Information';
+      case 'WARNING': return 'Avertissement';
+      case 'ERROR': return 'Erreur';
+      case 'DEBUG': return 'Debug';
+      default: return level || 'Inconnu';
     }
   };
 
   const getTypeLabel = (type) => {
-    switch (type) {
-      case 'instance': return 'Instance';
-      case 'storage': return 'Stockage';
-      case 'network': return 'Réseau';
-      case 'user': return 'Utilisateur';
-      case 'system': return 'Système';
+    if (!type) return 'Inconnu';
+    
+    // Extraire le type principal (avant le point)
+    const mainType = type.split('.')[0];
+    
+    switch (mainType) {
+      case 'VM': return 'Machine Virtuelle';
+      case 'VOLUME': return 'Volume';
+      case 'SNAPSHOT': return 'Snapshot';
+      case 'ISO': return 'ISO';
+      case 'USER': return 'Utilisateur';
+      case 'FIREWALL': return 'Pare-feu';
+      case 'MAINT': return 'Maintenance';
+      case 'NET': return 'Réseau';
+      case 'DISABLE': return 'Désactivation';
+      case 'VMSNAPSHOT': return 'Snapshot VM';
       default: return type;
     }
   };
@@ -177,7 +184,7 @@ const EventLogs = () => {
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h4" component="h1" sx={{ color: 'white' }}>
-          Logs d'Événements
+          Événements CloudStack
         </Typography>
         <Box>
           <Button
@@ -202,9 +209,17 @@ const EventLogs = () => {
         <Box display="flex" alignItems="center" mb={2}>
           <FilterIcon sx={{ mr: 1 }} />
           <Typography variant="h6">Filtres</Typography>
+          {filtering && (
+            <Box display="flex" alignItems="center" ml={2}>
+              <CircularProgress size={16} sx={{ mr: 1 }} />
+              <Typography variant="body2" color="textSecondary">
+                Filtrage en cours...
+              </Typography>
+            </Box>
+          )}
         </Box>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid xs={12} sm={6} md={3}>
             <FormControl fullWidth size="small">
               <InputLabel>Niveau</InputLabel>
               <Select
@@ -213,14 +228,14 @@ const EventLogs = () => {
                 onChange={(e) => handleFilterChange('level', e.target.value)}
               >
                 <MenuItem value="">Tous</MenuItem>
-                <MenuItem value="info">Information</MenuItem>
-                <MenuItem value="warning">Avertissement</MenuItem>
-                <MenuItem value="error">Erreur</MenuItem>
-                <MenuItem value="success">Succès</MenuItem>
+                <MenuItem value="INFO">Information</MenuItem>
+                <MenuItem value="WARNING">Avertissement</MenuItem>
+                <MenuItem value="ERROR">Erreur</MenuItem>
+                <MenuItem value="DEBUG">Debug</MenuItem>
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid xs={12} sm={6} md={3}>
             <FormControl fullWidth size="small">
               <InputLabel>Type</InputLabel>
               <Select
@@ -229,15 +244,20 @@ const EventLogs = () => {
                 onChange={(e) => handleFilterChange('type', e.target.value)}
               >
                 <MenuItem value="">Tous</MenuItem>
-                <MenuItem value="instance">Instance</MenuItem>
-                <MenuItem value="storage">Stockage</MenuItem>
-                <MenuItem value="network">Réseau</MenuItem>
-                <MenuItem value="user">Utilisateur</MenuItem>
-                <MenuItem value="system">Système</MenuItem>
+                <MenuItem value="VM">Machine Virtuelle</MenuItem>
+                <MenuItem value="VOLUME">Volume</MenuItem>
+                <MenuItem value="SNAPSHOT">Snapshot</MenuItem>
+                <MenuItem value="ISO">ISO</MenuItem>
+                <MenuItem value="USER">Utilisateur</MenuItem>
+                <MenuItem value="FIREWALL">Pare-feu</MenuItem>
+                <MenuItem value="MAINT">Maintenance</MenuItem>
+                <MenuItem value="NET">Réseau</MenuItem>
+                <MenuItem value="DISABLE">Désactivation</MenuItem>
+                <MenuItem value="VMSNAPSHOT">Snapshot VM</MenuItem>
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid xs={12} sm={6} md={3}>
             <TextField
               fullWidth
               size="small"
@@ -247,7 +267,7 @@ const EventLogs = () => {
               placeholder="Message ou utilisateur..."
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid xs={12} sm={6} md={3}>
             <Button
               variant="outlined"
               startIcon={<ClearIcon />}
@@ -270,7 +290,8 @@ const EventLogs = () => {
                 <TableCell>Type</TableCell>
                 <TableCell>Message</TableCell>
                 <TableCell>Utilisateur</TableCell>
-                <TableCell>Détails</TableCell>
+                <TableCell>Compte</TableCell>
+                <TableCell>Ressource</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -305,9 +326,14 @@ const EventLogs = () => {
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Tooltip title={log.details}>
+                    <Typography variant="body2" color="textSecondary">
+                      {log.account}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Tooltip title={`${log.resourceType}: ${log.resourceName}`}>
                       <Typography variant="body2" color="textSecondary" sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {log.details}
+                        {log.resourceType}: {log.resourceName}
                       </Typography>
                     </Tooltip>
                   </TableCell>
@@ -318,18 +344,24 @@ const EventLogs = () => {
         </TableContainer>
       </Paper>
 
-      {filteredLogs.length === 0 && !loading && (
+      {filteredLogs.length === 0 && !loading && !filtering && (
         <Box textAlign="center" py={4}>
           <Typography variant="h6" color="textSecondary">
-            {logs.length === 0 ? 'Aucun log trouvé' : 'Aucun log ne correspond aux filtres'}
+            {logs.length === 0 ? 'Aucun événement CloudStack trouvé' : 'Aucun événement ne correspond aux filtres appliqués'}
           </Typography>
+          {filters.level || filters.type || filters.search ? (
+            <Typography variant="body2" color="textSecondary" mt={1}>
+              Essayez de modifier vos critères de filtrage
+            </Typography>
+          ) : null}
         </Box>
       )}
 
       {filteredLogs.length > 0 && (
         <Box mt={2} textAlign="center">
           <Typography variant="body2" color="textSecondary">
-            Affichage de {filteredLogs.length} log(s) sur {logs.length} total
+            Affichage de {filteredLogs.length} événement(s) CloudStack
+            {filters.level || filters.type || filters.search ? ' (filtrés)' : ''}
           </Typography>
         </Box>
       )}

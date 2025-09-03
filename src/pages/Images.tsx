@@ -59,7 +59,6 @@ const Images = () => {
   const [error, setError] = useState<string | null>(null);
   
   // États pour les données
-  const [templates, setTemplates] = useState([]);
   const [isos, setIsos] = useState([]);
 
   useEffect(() => {
@@ -72,37 +71,6 @@ const Images = () => {
     
     try {
       // Données de test pour Images
-      setTemplates([
-        {
-          id: 1,
-          name: 'Ubuntu-20.04-Template',
-          displayText: 'Ubuntu 20.04 LTS Server',
-          format: 'QCOW2',
-          size: '2.5 GB',
-          os: 'Ubuntu',
-          osVersion: '20.04',
-          hypervisor: 'KVM',
-          state: 'ready',
-          account: 'admin',
-          domain: 'ROOT',
-          zone: 'Zone-1'
-        },
-        {
-          id: 2,
-          name: 'CentOS-8-Template',
-          displayText: 'CentOS 8 Stream',
-          format: 'QCOW2',
-          size: '3.1 GB',
-          os: 'CentOS',
-          osVersion: '8',
-          hypervisor: 'KVM',
-          state: 'ready',
-          account: 'admin',
-          domain: 'ROOT',
-          zone: 'Zone-1'
-        }
-      ]);
-
       setIsos([
         {
           id: 1,
@@ -187,78 +155,12 @@ const Images = () => {
       
       <Paper sx={{ width: '100%' }}>
         <Tabs value={tabValue} onChange={handleTabChange} aria-label="images tabs">
-          <Tab label="Templates" icon={<TemplateIcon />} />
           <Tab label="ISOs" icon={<IsoIcon />} />
         </Tabs>
       </Paper>
 
-      {/* Templates */}
-      <TabPanel value={tabValue} index={0}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-          <Typography variant="h6">Templates ({templates.length})</Typography>
-          <Button variant="contained" startIcon={<AddIcon />}>
-            Nouveau Template
-          </Button>
-        </Box>
-        
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Display Text</TableCell>
-                <TableCell>Format</TableCell>
-                <TableCell>Size</TableCell>
-                <TableCell>OS</TableCell>
-                <TableCell>OS Version</TableCell>
-                <TableCell>Hypervisor</TableCell>
-                <TableCell>State</TableCell>
-                <TableCell>Account</TableCell>
-                <TableCell>Domain</TableCell>
-                <TableCell>Zone</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {templates.map((template: any) => (
-                <TableRow key={template.id}>
-                  <TableCell>{template.name}</TableCell>
-                  <TableCell>{template.displayText}</TableCell>
-                  <TableCell>{template.format}</TableCell>
-                  <TableCell>{template.size}</TableCell>
-                  <TableCell>{template.os}</TableCell>
-                  <TableCell>{template.osVersion}</TableCell>
-                  <TableCell>{template.hypervisor}</TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={template.state} 
-                      color={getStateColor(template.state) as any}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>{template.account}</TableCell>
-                  <TableCell>{template.domain}</TableCell>
-                  <TableCell>{template.zone}</TableCell>
-                  <TableCell>
-                    <IconButton size="small">
-                      <DownloadIcon />
-                    </IconButton>
-                    <IconButton size="small">
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton size="small">
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </TabPanel>
-
       {/* ISOs */}
-      <TabPanel value={tabValue} index={1}>
+      <TabPanel value={tabValue} index={0}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
           <Typography variant="h6">ISOs ({isos.length})</Typography>
           <Button variant="contained" startIcon={<AddIcon />}>

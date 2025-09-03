@@ -264,6 +264,75 @@ class CloudStackAPI {
     return response.revertsnapshotresponse;
   }
 
+  // ===== API POUR LA GESTION DES VMSNAPSHOTS (INSTANCE SNAPSHOTS) =====
+
+  // Récupérer les VMSnapshots
+  async getVMSnapshots() {
+    const response = await this.makeRequest('listVMSnapshots');
+    return response.listvmsnapshotsresponse?.vmsnapshot || [];
+  }
+
+  // Créer un VMSnapshot
+  async createVMSnapshot(params) {
+    const response = await this.makeRequest('createVMSnapshot', params);
+    return response.createvmsnapshotresponse;
+  }
+
+  // Supprimer un VMSnapshot
+  async deleteVMSnapshot(id) {
+    const response = await this.makeRequest('deleteVMSnapshot', { id });
+    return response.deletevmsnapshotresponse;
+  }
+
+  // Restaurer un VMSnapshot
+  async revertVMSnapshot(id) {
+    const response = await this.makeRequest('revertVMSnapshot', { id });
+    return response.revertvmsnapshotresponse;
+  }
+
+  // ===== API POUR LA GESTION DES ISOs =====
+
+  // Récupérer les ISOs
+  async getISOs() {
+    const response = await this.makeRequest('listIsos');
+    return response.listisosresponse?.iso || [];
+  }
+
+  // Créer un ISO
+  async createISO(params) {
+    const response = await this.makeRequest('registerIso', params);
+    return response.registerisoresponse;
+  }
+
+  // Mettre à jour un ISO
+  async updateISO(params) {
+    const response = await this.makeRequest('updateIso', params);
+    return response.updateisoresponse;
+  }
+
+  // Supprimer un ISO
+  async deleteISO(id) {
+    const response = await this.makeRequest('deleteIso', { id });
+    return response.deleteisoresponse;
+  }
+
+  // ===== API POUR LA GESTION DES ÉVÉNEMENTS =====
+
+  // Récupérer les événements
+  async getEvents(params = {}) {
+    // Nettoyer les paramètres - supprimer les valeurs undefined, null ou vides
+    const cleanParams = {};
+    Object.keys(params).forEach(key => {
+      if (params[key] !== undefined && params[key] !== null && params[key] !== '' && params[key] !== 'undefined') {
+        cleanParams[key] = params[key];
+      }
+    });
+    
+    console.log('📋 Paramètres nettoyés pour listEvents:', cleanParams);
+    const response = await this.makeRequest('listEvents', cleanParams);
+    return response.listeventsresponse?.event || [];
+  }
+
   // ===== API POUR LA GESTION DES GROUPES D'INSTANCES =====
 
   // Récupérer les groupes d'instances

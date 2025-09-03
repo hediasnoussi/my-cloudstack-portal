@@ -104,27 +104,7 @@ const cloudstackService = {
     }
   },
 
-  // Récupérer les réseaux CloudStack
-  getNetworks: async () => {
-    try {
-      const response = await api.get('/api/global/cloudstack/networks');
-      return response.data;
-    } catch (error) {
-      console.error('Erreur lors de la récupération des réseaux CloudStack:', error);
-      throw error;
-    }
-  },
 
-  // Récupérer les groupes de sécurité CloudStack
-  getSecurityGroups: async () => {
-    try {
-      const response = await api.get('/api/global/cloudstack/security-groups');
-      return response.data;
-    } catch (error) {
-      console.error('Erreur lors de la récupération des groupes de sécurité CloudStack:', error);
-      throw error;
-    }
-  },
 
   // Récupérer les templates CloudStack
   getTemplates: async () => {
@@ -301,6 +281,115 @@ const cloudstackService = {
     }
   },
 
+  // Gestion des VMSnapshots (instance snapshots)
+  getVMSnapshots: async () => {
+    try {
+      console.log('📸 Récupération des VMSnapshots CloudStack...');
+      const response = await api.get('/api/global/cloudstack/vm-snapshots');
+      return response.data;
+    } catch (error) {
+      console.error('❌ Erreur lors de la récupération des VMSnapshots:', error);
+      throw error;
+    }
+  },
+
+  createVMSnapshot: async (vmSnapshotData) => {
+    try {
+      console.log('📸 Création du VMSnapshot CloudStack:', vmSnapshotData);
+      const response = await api.post('/api/global/cloudstack/vm-snapshots', vmSnapshotData);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Erreur lors de la création du VMSnapshot:', error);
+      throw error;
+    }
+  },
+
+  deleteVMSnapshot: async (vmSnapshotId) => {
+    try {
+      console.log('🗑️ Suppression du VMSnapshot:', vmSnapshotId);
+      const response = await api.delete(`/api/global/cloudstack/vm-snapshots/${vmSnapshotId}`);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Erreur lors de la suppression du VMSnapshot:', error);
+      throw error;
+    }
+  },
+
+  revertVMSnapshot: async (vmSnapshotId) => {
+    try {
+      console.log('🔄 Restauration du VMSnapshot:', vmSnapshotId);
+      const response = await api.put(`/api/global/cloudstack/vm-snapshots/${vmSnapshotId}/revert`);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Erreur lors de la restauration du VMSnapshot:', error);
+      throw error;
+    }
+  },
+
+  // ===== GESTION DES ISOs CLOUDSTACK =====
+
+  // Récupérer les ISOs
+  getISOs: async () => {
+    try {
+      console.log('📀 Récupération des ISOs CloudStack...');
+      const response = await api.get('/api/global/cloudstack/isos');
+      return response.data;
+    } catch (error) {
+      console.error('❌ Erreur lors de la récupération des ISOs:', error);
+      throw error;
+    }
+  },
+
+  // Créer un ISO
+  createISO: async (isoData) => {
+    try {
+      console.log('📀 Création de l\'ISO CloudStack:', isoData);
+      const response = await api.post('/api/global/cloudstack/isos', isoData);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Erreur lors de la création de l\'ISO:', error);
+      throw error;
+    }
+  },
+
+  // Mettre à jour un ISO
+  updateISO: async (isoId, isoData) => {
+    try {
+      console.log('📀 Mise à jour de l\'ISO CloudStack:', isoId, isoData);
+      const response = await api.put(`/api/global/cloudstack/isos/${isoId}`, isoData);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Erreur lors de la mise à jour de l\'ISO:', error);
+      throw error;
+    }
+  },
+
+  // Supprimer un ISO
+  deleteISO: async (isoId) => {
+    try {
+      console.log('🗑️ Suppression de l\'ISO CloudStack:', isoId);
+      const response = await api.delete(`/api/global/cloudstack/isos/${isoId}`);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Erreur lors de la suppression de l\'ISO:', error);
+      throw error;
+    }
+  },
+
+  // ===== GESTION DES ÉVÉNEMENTS CLOUDSTACK =====
+
+  // Récupérer les événements
+  getEvents: async (params = {}) => {
+    try {
+      console.log('📋 Récupération des événements CloudStack...');
+      const response = await api.get('/api/global/cloudstack/events', { params });
+      return response.data;
+    } catch (error) {
+      console.error('❌ Erreur lors de la récupération des événements:', error);
+      throw error;
+    }
+  },
+
   // ===== GESTION DES GROUPES D'INSTANCES CLOUDSTACK =====
   getInstanceGroups: async () => {
     try {
@@ -346,50 +435,7 @@ const cloudstackService = {
     }
   },
 
-  // ===== GESTION DES CLÉS SSH CLOUDSTACK =====
-  getSSHKeyPairs: async () => {
-    try {
-      console.log('🔑 Récupération des clés SSH CloudStack...');
-      const response = await api.get('/api/global/cloudstack/ssh-key-pairs');
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de la récupération des clés SSH:', error);
-      throw error;
-    }
-  },
 
-  createSSHKeyPair: async (keyData) => {
-    try {
-      console.log('🔑 Création de la paire de clés SSH CloudStack:', keyData);
-      const response = await api.post('/api/global/cloudstack/ssh-key-pairs', keyData);
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de la création de la paire de clés SSH:', error);
-      throw error;
-    }
-  },
-
-  deleteSSHKeyPair: async (keyName) => {
-    try {
-      console.log('🗑️ Suppression de la paire de clés SSH:', keyName);
-      const response = await api.delete(`/api/global/cloudstack/ssh-key-pairs/${keyName}`);
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de la suppression de la paire de clés SSH:', error);
-      throw error;
-    }
-  },
-
-  registerSSHKeyPair: async (keyData) => {
-    try {
-      console.log('📥 Import de la paire de clés SSH CloudStack:', keyData);
-      const response = await api.post('/api/global/cloudstack/ssh-key-pairs/register', keyData);
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de l\'import de la paire de clés SSH:', error);
-      throw error;
-    }
-  },
 
   // ===== GESTION DES UTILISATEURS CLOUDSTACK =====
   getUsers: async () => {
@@ -481,271 +527,11 @@ const cloudstackService = {
     }
   },
 
-  // ===== GESTION DES USER DATA CLOUDSTACK =====
-  getUserData: async () => {
-    try {
-      console.log('📄 Récupération des user data CloudStack...');
-      const response = await api.get('/api/global/cloudstack/user-data');
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de la récupération des user data:', error);
-      throw error;
-    }
-  },
 
-  createUserDataTemplate: async (templateData) => {
-    try {
-      console.log('📄 Création du template avec user data CloudStack:', templateData);
-      const response = await api.post('/api/global/cloudstack/user-data', templateData);
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de la création du template avec user data:', error);
-      throw error;
-    }
-  },
 
-  updateUserDataTemplate: async (templateId, templateData) => {
-    try {
-      console.log('✏️ Mise à jour du template avec user data CloudStack:', templateId);
-      const response = await api.put(`/api/global/cloudstack/user-data/${templateId}`, templateData);
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de la mise à jour du template avec user data:', error);
-      throw error;
-    }
-  },
 
-  deleteUserDataTemplate: async (templateId) => {
-    try {
-      console.log('🗑️ Suppression du template avec user data CloudStack:', templateId);
-      const response = await api.delete(`/api/global/cloudstack/user-data/${templateId}`);
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de la suppression du template avec user data:', error);
-      throw error;
-    }
-  },
 
-  // ===== GESTION DES RÉSEAUX CLOUDSTACK =====
 
-  // Créer un réseau
-  createNetwork: async (networkData) => {
-    try {
-      const response = await api.post('/api/global/cloudstack/networks', networkData);
-      return response.data;
-    } catch (error) {
-      console.error('Erreur lors de la création du réseau:', error);
-      throw error;
-    }
-  },
-
-  // Supprimer un réseau
-  deleteNetwork: async (networkId) => {
-    try {
-      const response = await api.delete(`/api/global/cloudstack/networks/${networkId}`);
-      return response.data;
-    } catch (error) {
-      console.error('Erreur lors de la suppression du réseau:', error);
-      throw error;
-    }
-  },
-
-  // ===== GESTION DES GROUPES DE SÉCURITÉ CLOUDSTACK =====
-
-  // Créer un groupe de sécurité
-  createSecurityGroup: async (securityGroupData) => {
-    try {
-      const response = await api.post('/api/global/cloudstack/security-groups', securityGroupData);
-      return response.data;
-    } catch (error) {
-      console.error('Erreur lors de la création du groupe de sécurité:', error);
-      throw error;
-    }
-  },
-
-  // Supprimer un groupe de sécurité
-  deleteSecurityGroup: async (securityGroupId) => {
-    try {
-      const response = await api.delete(`/api/global/cloudstack/security-groups/${securityGroupId}`);
-      return response.data;
-    } catch (error) {
-      console.error('Erreur lors de la suppression du groupe de sécurité:', error);
-      throw error;
-    }
-  },
-
-  // ===== GESTION DES VPC CLOUDSTACK =====
-  
-  getVPCs: async () => {
-    try {
-      console.log('🏗️ Récupération des VPC CloudStack...');
-      const response = await api.get('/api/global/cloudstack/vpcs');
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de la récupération des VPC:', error);
-      throw error;
-    }
-  },
-
-  createVPC: async (vpcData) => {
-    try {
-      console.log('🏗️ Création du VPC CloudStack:', vpcData);
-      const response = await api.post('/api/global/cloudstack/vpcs', vpcData);
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de la création du VPC:', error);
-      throw error;
-    }
-  },
-
-  deleteVPC: async (vpcId) => {
-    try {
-      console.log('🗑️ Suppression du VPC:', vpcId);
-      const response = await api.delete(`/api/global/cloudstack/vpcs/${vpcId}`);
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de la suppression du VPC:', error);
-      throw error;
-    }
-  },
-
-  updateVPC: async (vpcId, vpcData) => {
-    try {
-      console.log('✏️ Mise à jour du VPC:', vpcId);
-      const response = await api.put(`/api/global/cloudstack/vpcs/${vpcId}`, vpcData);
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de la mise à jour du VPC:', error);
-      throw error;
-    }
-  },
-
-  // ===== GESTION DES IP PUBLIQUES CLOUDSTACK =====
-  
-  getPublicIPs: async () => {
-    try {
-      console.log('🌐 Récupération des IP publiques CloudStack...');
-      const response = await api.get('/api/global/cloudstack/public-ips');
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de la récupération des IP publiques:', error);
-      throw error;
-    }
-  },
-
-  associatePublicIP: async (ipData) => {
-    try {
-      console.log('🔗 Association de l\'IP publique CloudStack:', ipData);
-      const response = await api.post('/api/global/cloudstack/public-ips/associate', ipData);
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de l\'association de l\'IP publique:', error);
-      throw error;
-    }
-  },
-
-  disassociatePublicIP: async (ipId) => {
-    try {
-      console.log('🔓 Dissociation de l\'IP publique:', ipId);
-      const response = await api.put(`/api/global/cloudstack/public-ips/${ipId}/disassociate`);
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de la dissociation de l\'IP publique:', error);
-      throw error;
-    }
-  },
-
-  releasePublicIP: async (ipId) => {
-    try {
-      console.log('🗑️ Libération de l\'IP publique:', ipId);
-      const response = await api.delete(`/api/global/cloudstack/public-ips/${ipId}`);
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de la libération de l\'IP publique:', error);
-      throw error;
-    }
-  },
-
-  // ===== GESTION DES RÉSEAUX AVANCÉE CLOUDSTACK =====
-  
-  getNetworksDetailed: async () => {
-    try {
-      console.log('🌐 Récupération des réseaux détaillés CloudStack...');
-      const response = await api.get('/api/global/cloudstack/networks-detailed');
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de la récupération des réseaux:', error);
-      throw error;
-    }
-  },
-
-  createIsolatedNetwork: async (networkData) => {
-    try {
-      console.log('🌐 Création du réseau isolé CloudStack:', networkData);
-      const response = await api.post('/api/global/cloudstack/networks/isolated', networkData);
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de la création du réseau isolé:', error);
-      throw error;
-    }
-  },
-
-  createSharedNetwork: async (networkData) => {
-    try {
-      console.log('🌐 Création du réseau partagé CloudStack:', networkData);
-      const response = await api.post('/api/global/cloudstack/networks/shared', networkData);
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de la création du réseau partagé:', error);
-      throw error;
-    }
-  },
-
-  updateNetwork: async (networkId, networkData) => {
-    try {
-      console.log('✏️ Mise à jour du réseau:', networkId);
-      const response = await api.put(`/api/global/cloudstack/networks/${networkId}`, networkData);
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de la mise à jour du réseau:', error);
-      throw error;
-    }
-  },
-
-  // ===== GESTION DES ACL CLOUDSTACK =====
-  
-  getNetworkACLs: async () => {
-    try {
-      console.log('🔒 Récupération des ACL CloudStack...');
-      const response = await api.get('/api/global/cloudstack/network-acls');
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de la récupération des ACL:', error);
-      throw error;
-    }
-  },
-
-  createNetworkACL: async (aclData) => {
-    try {
-      console.log('🔒 Création de l\'ACL CloudStack:', aclData);
-      const response = await api.post('/api/global/cloudstack/network-acls', aclData);
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de la création de l\'ACL:', error);
-      throw error;
-    }
-  },
-
-  deleteNetworkACL: async (aclId) => {
-    try {
-      console.log('🗑️ Suppression de l\'ACL:', aclId);
-      const response = await api.delete(`/api/global/cloudstack/network-acls/${aclId}`);
-      return response.data;
-    } catch (error) {
-      console.error('❌ Erreur lors de la suppression de l\'ACL:', error);
-      throw error;
-    }
-  }
 };
 
 export default cloudstackService;

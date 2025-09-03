@@ -38,11 +38,10 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
       color: 'text-gray-500',
       path: '/compute',
       subItems: [
-        { text: t('common.instances'), icon: 'fas fa-server', path: '/compute/instances', color: 'text-gray-500' },
+        { text: 'VPS', icon: 'fas fa-server', path: '/compute/instances', color: 'text-gray-500' },
         { text: t('common.instanceSnapshots'), icon: 'fas fa-camera', path: '/compute/snapshots', color: 'text-gray-500' },
         { text: t('common.instanceGroups'), icon: 'fas fa-layer-group', path: '/compute/groups', color: 'text-gray-500' },
-        { text: t('common.sshKeyPairs'), icon: 'fas fa-key', path: '/compute/ssh-keys', color: 'text-gray-500' },
-        { text: t('common.userData'), icon: 'fas fa-user-cog', path: '/compute/user-data', color: 'text-gray-500' }
+
       ]
     },
     {
@@ -53,28 +52,16 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
       subItems: [
         { text: t('common.volumes'), icon: 'fas fa-hdd', path: '/storage/volumes', color: 'text-gray-500' },
         { text: t('common.volumeSnapshots'), icon: 'fas fa-clone', path: '/compute/snapshots-global', color: 'text-gray-500' },
-        { text: t('common.backups'), icon: 'fas fa-shield-alt', path: '/storage/backups', color: 'text-gray-500' }
+
       ]
     },
-    {
-      text: t('common.network'),
-      icon: 'ni ni-world-2',
-      color: 'text-gray-500',
-      path: '/network',
-      subItems: [
-        { text: t('common.networks'), icon: 'fas fa-network-wired', path: '/network/networks', color: 'text-gray-500' },
-        { text: t('common.publicIps'), icon: 'fas fa-globe', path: '/network/public-ips', color: 'text-gray-500' },
-        { text: t('common.vpc'), icon: 'fas fa-cloud', path: '/network/vpc', color: 'text-gray-500' },
-        { text: t('common.securityGroups'), icon: 'fas fa-shield-alt', path: '/network/security-groups', color: 'text-gray-500' }
-      ]
-    },
+
     {
       text: t('common.images'),
       icon: 'ni ni-image',
       color: 'text-gray-500',
       path: '/images',
       subItems: [
-        { text: t('common.templates'), icon: 'fas fa-copy', path: '/images/templates', color: 'text-gray-500' },
         { text: t('common.isos'), icon: 'fas fa-compact-disc', path: '/images/isos', color: 'text-gray-500' }
       ]
     },

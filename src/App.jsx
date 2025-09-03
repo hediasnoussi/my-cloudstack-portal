@@ -12,18 +12,17 @@ import ProtectedRoute from './components/ProtectedRoute';
 // Pages
 import Login from './pages/Login';
 import MainLayout from './components/Layout/MainLayout';
-import RoleBasedDashboard from './pages/RoleBasedDashboard';
+import Dashboard from './pages/Dashboard';
 import Compute from './pages/Compute';
 import Storage from './pages/Storage';
-import Network from './pages/Network';
 import Instances from './pages/Instances';
 import CreateInstance from './pages/CreateInstance';
 import InstanceSnapshots from './pages/InstanceSnapshots';
 import InstanceGroups from './pages/InstanceGroups';
-import Templates from './pages/Templates';
+
 import ISOs from './pages/ISOs';
 import Snapshots from './pages/Snapshots';
-import SSHKeyPairs from './pages/SSHKeyPairs';
+
 import ServiceOfferings from './pages/ServiceOfferings';
 import DiskOfferings from './pages/DiskOfferings';
 import Volumes from './pages/Volumes';
@@ -31,13 +30,7 @@ import StoragePools from './pages/StoragePools';
 import StorageSnapshots from './pages/StorageSnapshots';
 import SharedFilesystem from './pages/SharedFilesystem';
 import Buckets from './pages/Buckets';
-import Backups from './pages/Backups';
-import Networks from './pages/Networks';
-import GuestNetworks from './pages/GuestNetworks';
-import PublicIPs from './pages/PublicIPs';
-import LoadBalancers from './pages/LoadBalancers';
-import SecurityGroups from './pages/SecurityGroups';
-import VPC from './pages/VPC';
+
 import Users from './pages/Users';
 import Accounts from './pages/Accounts';
 import Projects from './pages/Projects';
@@ -53,7 +46,7 @@ import EventLogs from './pages/EventLogs';
 import Events from './pages/Events';
 import Zones from './pages/Zones';
 import ZonesManagement from './pages/ZonesManagement';
-import UserData from './pages/UserData';
+
 import AuditTrail from './pages/AuditTrail';
 import TestPhase2 from './pages/TestPhase2';
 import TestData from './pages/TestData';
@@ -76,7 +69,7 @@ function App() {
                 {/* Routes protégées avec MainLayout */}
                 <Route path="/" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
                   <Route index element={<Navigate to="/dashboard" replace />} />
-                  <Route path="dashboard" element={<RoleBasedDashboard />} />
+                  <Route path="dashboard" element={<Dashboard />} />
                   <Route path="user-dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
                   
                   {/* Compute */}
@@ -86,31 +79,23 @@ function App() {
                   <Route path="create-instance" element={<CreateInstance />} />
                   <Route path="compute/snapshots" element={<InstanceSnapshots />} />
                   <Route path="compute/groups" element={<InstanceGroups />} />
-                  <Route path="compute/templates" element={<Templates />} />
+
                   <Route path="compute/isos" element={<ISOs />} />
                   <Route path="compute/snapshots-global" element={<Snapshots />} />
-                  <Route path="compute/ssh-keys" element={<SSHKeyPairs />} />
                   <Route path="compute/service-offerings" element={<ServiceOfferings />} />
                   <Route path="compute/disk-offerings" element={<DiskOfferings />} />
-                  <Route path="compute/user-data" element={<UserData />} />
                   
                   {/* Storage */}
                   <Route path="storage" element={<Storage />} />
                   <Route path="storage/volumes" element={<Volumes />} />
                   <Route path="storage/pools" element={<StoragePools />} />
                   <Route path="storage/snapshots" element={<StorageSnapshots />} />
-                  <Route path="storage/filesystem" element={<SharedFilesystem />} />
-                  <Route path="storage/buckets" element={<Buckets />} />
-                  <Route path="storage/backups" element={<Backups />} />
+                          <Route path="storage/filesystem" element={<SharedFilesystem />} />
+        <Route path="storage/buckets" element={<Buckets />} />
+        <Route path="storage/backups" element={<Navigate to="/dashboard" replace />} />
+          
                   
-                  {/* Network */}
-                  <Route path="network" element={<Network />} />
-                  <Route path="network/networks" element={<Networks />} />
-                  <Route path="network/guest-networks" element={<GuestNetworks />} />
-                  <Route path="network/public-ips" element={<PublicIPs />} />
-                  <Route path="network/load-balancers" element={<LoadBalancers />} />
-                  <Route path="network/security-groups" element={<SecurityGroups />} />
-                  <Route path="network/vpc" element={<VPC />} />
+
                   
                   {/* Accounts & Users */}
                   <Route path="accounts" element={<Accounts />} />
@@ -123,7 +108,7 @@ function App() {
                   
                   {/* Other */}
                   <Route path="images" element={<Images />} />
-                  <Route path="images/templates" element={<Templates />} />
+
                   <Route path="images/isos" element={<ISOs />} />
                   <Route path="kubernetes" element={<Kubernetes />} />
                   <Route path="autoscaling" element={<AutoscalingGroups />} />
@@ -134,12 +119,23 @@ function App() {
                   <Route path="audit-trail" element={<AuditTrail />} />
                   <Route path="zones" element={<Zones />} />
                   <Route path="zones/management" element={<ZonesManagement />} />
-                  <Route path="user-data" element={<UserData />} />
+
                   <Route path="test-phase2" element={<TestPhase2 />} />
                   <Route path="test-data" element={<TestData />} />
                   <Route path="test-routing" element={<TestData />} />
                   <Route path="cloudstack-test" element={<CloudStackTest />} />
                   <Route path="subprovider-dashboard" element={<SubProviderDashboard />} />
+                  
+                  {/* Route de fallback pour les routes réseau supprimées */}
+                  <Route path="network/*" element={<Navigate to="/dashboard" replace />} />
+                  
+                  {/* Route de fallback pour les routes SSH Keys et User Data supprimées */}
+                  <Route path="compute/ssh-keys" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="compute/user-data" element={<Navigate to="/dashboard" replace />} />
+                  
+                  {/* Route de fallback pour les routes Templates supprimées */}
+                  <Route path="images/templates" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="compute/templates" element={<Navigate to="/dashboard" replace />} />
                 </Route>
               </Routes>
             </Router>

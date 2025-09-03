@@ -65,8 +65,7 @@ const CreateInstance = () => {
     startInstance: true,
     
     // Étape 4: Options de sauvegarde
-    premiumBackup: false,
-    snapshotBackup: false
+
   });
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [templates, setTemplates] = useState([]);
@@ -123,10 +122,6 @@ const CreateInstance = () => {
         {
           label: t('createInstance.step2'),
           icon: <SettingsIcon />
-        },
-        {
-          label: 'Choisissez vos options',
-          icon: <SettingsIcon />
         }
       ];
     } else {
@@ -142,10 +137,6 @@ const CreateInstance = () => {
         },
         {
           label: t('createInstance.step2'),
-          icon: <SettingsIcon />
-        },
-        {
-          label: 'Choisissez vos options',
           icon: <SettingsIcon />
         }
       ];
@@ -209,8 +200,8 @@ const CreateInstance = () => {
       setSnackbar({ open: true, message: t('createInstance.instanceCreatedSuccess'), severity: 'success' });
       
       setTimeout(() => {
-        // Redirection vers le dashboard avec les informations du VPS créé
-        navigate('/dashboard', { 
+        // Redirection vers la page des VPS avec les informations du VPS créé
+        navigate('/compute/instances', { 
           state: { 
             vpsCreated: true,
             vpsName: formData.name || result.name,
@@ -243,8 +234,6 @@ const CreateInstance = () => {
           return renderTemplateStep();
         case 2: // Compute offering
           return renderComputeOfferingStep();
-        case 3: // Options
-          return renderOptionsStep();
         default:
           return null;
       }
@@ -257,8 +246,6 @@ const CreateInstance = () => {
           return renderTemplateStep();
         case 2: // Compute offering
           return renderComputeOfferingStep();
-        case 3: // Options
-          return renderOptionsStep();
         default:
           return null;
       }
@@ -620,88 +607,7 @@ const CreateInstance = () => {
     );
   };
 
-  const renderOptionsStep = () => {
-    return (
-      <Box>
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h5" sx={{ fontWeight: 600, color: '#1e293b', mb: 1 }}>
-            Choisissez vos options
-          </Typography>
-          <Typography variant="body1" color="textSecondary">
-            Sélectionnez les options de sauvegarde pour votre VPS
-          </Typography>
-        </Box>
 
-        {/* Information Banner */}
-        <Box sx={{ 
-          mb: 4, 
-          p: 3, 
-          bgcolor: '#dbeafe', 
-          borderRadius: 2,
-          border: '1px solid #93c5fd'
-        }}>
-          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-            <Box sx={{ 
-              width: 20, 
-              height: 20, 
-              borderRadius: '50%', 
-              bgcolor: '#3b82f6', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              color: 'white',
-              fontSize: '14px',
-              fontWeight: 'bold'
-            }}>
-              i
-            </Box>
-            <Typography variant="body2" color="#1e40af">
-              La sauvegarde automatique est une fonctionnalité incluse avec votre achat de VPS ! Ainsi, vos données sont protégées quotidiennement sans effort et peuvent être facilement restaurées en cas de problème.
-            </Typography>
-          </Box>
-        </Box>
-
-        {/* Backup Options */}
-        <Box sx={{ display: 'grid', gap: 3 }}>
-          {/* Option 1: Sauvegarde automatique Premium */}
-          <Card variant="outlined" sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Checkbox
-                checked={formData.premiumBackup}
-                onChange={(e) => setFormData({ ...formData, premiumBackup: e.target.checked })}
-              />
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600, color: '#1e40b2', mb: 1 }}>
-                  Sauvegarde automatique Premium
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Votre sauvegarde personnalisée, avec une restauration roulante de 7 jours.
-                </Typography>
-              </Box>
-            </Box>
-          </Card>
-
-          {/* Option 2: Snapshot backup */}
-          <Card variant="outlined" sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Checkbox
-                checked={formData.snapshotBackup}
-                onChange={(e) => setFormData({ ...formData, snapshotBackup: e.target.checked })}
-              />
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600, color: '#1e40b2', mb: 1 }}>
-                  Snapshot backup
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Créez une image de votre serveur quand vous le souhaitez. Simple d'utilisation, il vous permet de restaurer et sécuriser rapidement votre VPS avant d'effectuer tout changement.
-                </Typography>
-              </Box>
-            </Box>
-          </Card>
-        </Box>
-      </Box>
-    );
-  };
 
   const renderVpsNameStep = () => {
     return (

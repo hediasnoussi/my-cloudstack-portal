@@ -16,12 +16,7 @@ router.post('/volume-snapshots', storageController.createVolumeSnapshot);
 router.put('/volume-snapshots/:id', storageController.updateVolumeSnapshot);
 router.delete('/volume-snapshots/:id', storageController.deleteVolumeSnapshot);
 
-// ===== BACKUPS ROUTES =====
-router.get('/backups', storageController.getAllBackups);
-router.get('/backups/:id', storageController.getBackupById);
-router.post('/backups', storageController.createBackup);
-router.put('/backups/:id', storageController.updateBackup);
-router.delete('/backups/:id', storageController.deleteBackup);
+
 
 // ===== BUCKETS ROUTES =====
 router.get('/buckets', storageController.getAllBuckets);

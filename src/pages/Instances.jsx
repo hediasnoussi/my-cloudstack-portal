@@ -134,73 +134,110 @@ const Instances = () => {
   const handleSubmit = async () => {
     try {
       if (!formData.name.trim()) {
-        setSnackbar({ open: true, message: 'Le nom de l\'instance est requis', severity: 'error' });
+        setSnackbar({ open: true, message: 'Le nom du VPS est requis', severity: 'error' });
         return;
       }
 
       if (dialogMode === 'create') {
-        const newInstance = {
-          id: Date.now(),
-          ...formData,
-          ip_address: `192.168.1.${Math.floor(Math.random() * 255)}`,
-          created_at: new Date().toISOString()
+        // Créer un nouveau VPS via CloudStack
+        const vpsData = {
+          name: formData.name,
+          templateid: formData.template,
+          zoneid: formData.zone,
+          serviceofferingid: formData.service_offering
         };
-        setInstances([...instances, newInstance]);
-        setSnackbar({ open: true, message: 'Instance créée avec succès', severity: 'success' });
+        
+        await cloudstackService.deployVirtualMachine(vpsData);
+        setSnackbar({ open: true, message: 'VPS créé avec succès', severity: 'success' });
+        
+        // Rafraîchir la liste des VPS
+        fetchInstances();
       } else if (dialogMode === 'edit' && selectedInstance) {
-        const updatedInstances = instances.map(instance =>
-          instance.id === selectedInstance.id ? { ...instance, ...formData } : instance
-        );
-        setInstances(updatedInstances);
-        setSnackbar({ open: true, message: 'Instance modifiée avec succès', severity: 'success' });
+        // Note: CloudStack ne permet pas de modifier directement les VPS
+        // On peut seulement modifier les métadonnées
+        setSnackbar({ open: true, message: 'Modification des VPS non supportée par CloudStack', severity: 'warning' });
       }
       handleCloseDialog();
     } catch (err) {
+      console.error('Erreur lors de la création/modification du VPS:', err);
       setSnackbar({ open: true, message: `Erreur: ${err.message}`, severity: 'error' });
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette instance ?')) {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce VPS ?')) {
       try {
-        setInstances(instances.filter(instance => instance.id !== id));
-        setSnackbar({ open: true, message: 'Instance supprimée avec succès', severity: 'success' });
+        await cloudstackService.destroyVirtualMachine(id);
+        setSnackbar({ open: true, message: 'VPS supprimé avec succès', severity: 'success' });
+        
+        // Rafraîchir la liste des VPS
+        fetchInstances();
       } catch (err) {
+        console.error('Erreur lors de la suppression du VPS:', err);
         setSnackbar({ open: true, message: `Erreur: ${err.message}`, severity: 'error' });
       }
     }
   };
 
-  const handleInstanceAction = (instanceId, action) => {
-    const updatedInstances = instances.map(instance => {
-      if (instance.id === instanceId) {
-        return { ...instance, state: action };
+  const handleInstanceAction = async (instanceId, action) => {
+    try {
+      switch (action) {
+        case 'running':
+          await cloudstackService.startVirtualMachine(instanceId);
+          setSnackbar({ open: true, message: 'VPS démarré avec succès', severity: 'success' });
+          break;
+        case 'stopped':
+          await cloudstackService.stopVirtualMachine(instanceId);
+          setSnackbar({ open: true, message: 'VPS arrêté avec succès', severity: 'success' });
+          break;
+        default:
+          setSnackbar({ open: true, message: 'Action non supportée', severity: 'warning' });
+          return;
       }
-      return instance;
-    });
-    setInstances(updatedInstances);
-    setSnackbar({ 
-      open: true, 
-      message: `Instance ${action === 'running' ? 'démarrée' : action === 'stopped' ? 'arrêtée' : 'suspendue'} avec succès`, 
-      severity: 'success' 
-    });
+      
+      // Rafraîchir la liste des VPS
+      fetchInstances();
+    } catch (err) {
+      console.error('Erreur lors de l\'action sur le VPS:', err);
+      setSnackbar({ open: true, message: `Erreur: ${err.message}`, severity: 'error' });
+    }
   };
 
   const getStateColor = (state) => {
-    switch (state) {
-      case 'running': return 'success';
-      case 'stopped': return 'error';
-      case 'suspended': return 'warning';
-      default: return 'default';
+    switch (state?.toLowerCase()) {
+      case 'running':
+      case 'started':
+        return 'success';
+      case 'stopped':
+      case 'stopping':
+        return 'error';
+      case 'starting':
+        return 'warning';
+      case 'destroyed':
+        return 'error';
+      case 'expunging':
+        return 'warning';
+      default: 
+        return 'default';
     }
   };
 
   const getStateLabel = (state) => {
-    switch (state) {
-      case 'running': return 'En cours';
-      case 'stopped': return 'Arrêtée';
-      case 'suspended': return 'Suspendue';
-      default: return state;
+    switch (state?.toLowerCase()) {
+      case 'running':
+      case 'started':
+        return 'En cours';
+      case 'stopped':
+      case 'stopping':
+        return 'Arrêté';
+      case 'starting':
+        return 'Démarrage';
+      case 'destroyed':
+        return 'Supprimé';
+      case 'expunging':
+        return 'Suppression';
+      default: 
+        return state || 'Inconnu';
     }
   };
 
@@ -254,6 +291,7 @@ const Instances = () => {
                 <TableCell sx={{ fontWeight: 600, color: '#374151' }}>{t('instances.zone')}</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#374151' }}>Offre de service</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#374151' }}>{t('instances.ipAddress')}</TableCell>
+                <TableCell sx={{ fontWeight: 600, color: '#374151' }}>État</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#374151' }}>Date de création</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#374151' }}>{t('instances.actions')}</TableCell>
               </TableRow>
@@ -268,7 +306,13 @@ const Instances = () => {
                   <TableCell>{instance.service_offering}</TableCell>
 
                   <TableCell>{instance.ip_address}</TableCell>
-                  
+                  <TableCell>
+                    <Chip 
+                      label={getStateLabel(instance.state)} 
+                      color={getStateColor(instance.state)} 
+                      size="small"
+                    />
+                  </TableCell>
                   <TableCell>
                     {new Date(instance.created_at).toLocaleDateString()}
                   </TableCell>
@@ -284,26 +328,19 @@ const Instances = () => {
                           <EditIcon />
                         </IconButton>
                       </Tooltip>
-                      {instance.state === 'stopped' && (
+                      {(instance.state === 'stopped' || instance.state === 'Stopped') && (
                         <Tooltip title="Démarrer">
                           <IconButton size="small" sx={{ color: '#6b7280' }} onClick={() => handleInstanceAction(instance.id, 'running')}>
                             <StartIcon />
                           </IconButton>
                         </Tooltip>
                       )}
-                      {instance.state === 'running' && (
-                        <>
-                          <Tooltip title="Suspendre">
-                            <IconButton size="small" sx={{ color: '#6b7280' }} onClick={() => handleInstanceAction(instance.id, 'suspended')}>
-                              <PauseIcon />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Arrêter">
-                            <IconButton size="small" sx={{ color: '#6b7280' }} onClick={() => handleInstanceAction(instance.id, 'stopped')}>
-                              <StopIcon />
-                            </IconButton>
-                          </Tooltip>
-                        </>
+                      {(instance.state === 'running' || instance.state === 'Running') && (
+                        <Tooltip title="Arrêter">
+                          <IconButton size="small" sx={{ color: '#6b7280' }} onClick={() => handleInstanceAction(instance.id, 'stopped')}>
+                            <StopIcon />
+                          </IconButton>
+                        </Tooltip>
                       )}
                       <Tooltip title={t('instances.deleteInstance')}>
                         <IconButton size="small" sx={{ color: '#6b7280' }} onClick={() => handleDelete(instance.id)}>
@@ -322,7 +359,10 @@ const Instances = () => {
       {instances.length === 0 && !loading && (
         <Box textAlign="center" py={4}>
           <Typography variant="h6" color="textSecondary">
-            Aucune instance trouvée
+            Aucun VPS trouvé
+          </Typography>
+          <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+            Créez votre premier VPS pour commencer
           </Typography>
         </Box>
       )}
@@ -331,13 +371,13 @@ const Instances = () => {
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
           {dialogMode === 'create' ? 'Nouveau VPS' : 
-           dialogMode === 'edit' ? 'Modifier l\'Instance' : 'Détails de l\'Instance'}
+           dialogMode === 'edit' ? 'Modifier le VPS' : 'Détails du VPS'}
         </DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
-            label="Nom de l'instance"
+            label="Nom du VPS"
             fullWidth
             variant="outlined"
             value={formData.name}
