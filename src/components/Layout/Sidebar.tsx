@@ -91,8 +91,30 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
       }
     ];
   } else if (isPartner && isPartner()) {
-    // Sidebar limitée pour les partenaires
-    filteredMenuStructure = menuStructure.filter((item) => ['Dashboard', t('common.dashboard'), t('common.createNewInstance')].includes(item.text));
+    // Sidebar limitée pour les partenaires avec accès à leurs VPS
+    filteredMenuStructure = [
+      { 
+        text: t('common.dashboard'), 
+        icon: 'ni ni-tv-2', 
+        path: '/dashboard',
+        color: 'text-gray-500',
+        subItems: []
+      },
+      { 
+        text: t('common.createNewInstance'), 
+        icon: 'ni ni-fat-add', 
+        path: '/create-instance',
+        color: 'text-gray-500',
+        subItems: []
+      },
+      { 
+        text: 'Mes VPS', 
+        icon: 'ni ni-app', 
+        path: '/partner-vps',
+        color: 'text-gray-500',
+        subItems: []
+      }
+    ];
   } else {
     // Sidebar complète pour admin et subprovider
     filteredMenuStructure = menuStructure;

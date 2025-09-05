@@ -53,6 +53,7 @@ import TestData from './pages/TestData';
 import CloudStackTest from './pages/CloudStackTest';
 import SubProviderDashboard from './pages/SubProviderDashboard';
 import UserDashboard from './pages/UserDashboard';
+import PartnerVPS from './pages/PartnerVPS';
 
 function App() {
   return (
@@ -125,6 +126,7 @@ function App() {
                   <Route path="test-routing" element={<TestData />} />
                   <Route path="cloudstack-test" element={<CloudStackTest />} />
                   <Route path="subprovider-dashboard" element={<SubProviderDashboard />} />
+                  <Route path="partner-vps" element={<PartnerVPS />} />
                   
                   {/* Route de fallback pour les routes réseau supprimées */}
                   <Route path="network/*" element={<Navigate to="/dashboard" replace />} />
