@@ -1,8 +1,8 @@
-# 🎯 Guide de Routage Basé sur les Rôles
+#  Guide de Routage Basé sur les Rôles
 
-## 📋 Structure des Rôles et Redirections
+##  Structure des Rôles et Redirections
 
-### 🔐 Identifiants de Connexion
+###  Identifiants de Connexion
 
 | Rôle | Username | Password | Dashboard Principal | Dashboard Spécialisé |
 |------|----------|----------|-------------------|---------------------|
@@ -12,7 +12,7 @@
 | **User** | `user` | `password123` | `/user-dashboard` | `/user-dashboard` |
 | **Client** | `client` | `password123` | `/user-dashboard` | `/user-dashboard` |
 
-## 🚀 Logique de Redirection
+##  Logique de Redirection
 
 ### **Connexion Initiale**
 ```javascript
@@ -36,27 +36,27 @@ if (isUser()) {
 }
 ```
 
-## 📊 Accès aux Données CloudStack
+##  Accès aux Données CloudStack
 
 ### **Admin & Subprovider** (`/dashboard`)
-- ✅ **Vue globale** : Tous les VPS CloudStack
-- ✅ **Actions complètes** : Création, modification, suppression
-- ✅ **Statistiques globales** : Toutes les ressources
-- ✅ **Gestion des utilisateurs** : Tous les comptes
+-  **Vue globale** : Tous les VPS CloudStack
+-  **Actions complètes** : Création, modification, suppression
+-  **Statistiques globales** : Toutes les ressources
+-  **Gestion des utilisateurs** : Tous les comptes
 
 ### **Partner** (`/dashboard` - actuellement)
-- ✅ **Vue restreinte** : Ses VPS + VPS de ses clients
-- ✅ **Actions limitées** : Sur ses ressources
-- ✅ **Statistiques personnelles** : Ses ressources
-- ⚠️ **Dashboard spécialisé** : À créer (`/partner-dashboard`)
+-  **Vue restreinte** : Ses VPS + VPS de ses clients
+-  **Actions limitées** : Sur ses ressources
+-  **Statistiques personnelles** : Ses ressources
+-  **Dashboard spécialisé** : À créer (`/partner-dashboard`)
 
 ### **User & Client** (`/user-dashboard`)
-- ✅ **Vue personnelle** : Ses VPS uniquement
-- ✅ **Actions personnelles** : Sur ses VPS
-- ✅ **Facturation personnelle** : Ses coûts
-- ✅ **Support personnel** : Ses tickets
+-  **Vue personnelle** : Ses VPS uniquement
+-  **Actions personnelles** : Sur ses VPS
+-  **Facturation personnelle** : Ses coûts
+-  **Support personnel** : Ses tickets
 
-## 🔍 Filtrage des Données
+##  Filtrage des Données
 
 ### **Dans RoleBasedDashboard.jsx**
 ```javascript
@@ -77,7 +77,7 @@ const getFilteredVpsList = () => {
 };
 ```
 
-## 🌐 URLs des Dashboards
+##  URLs des Dashboards
 
 ### **Dashboards Principaux**
 - **Admin/Subprovider** : `http://localhost:5173/dashboard`
@@ -89,7 +89,7 @@ const getFilteredVpsList = () => {
 - **Partner Dashboard** : `http://localhost:5173/partner-dashboard` (à créer)
 - **User Dashboard** : `http://localhost:5173/user-dashboard`
 
-## 🎯 Votre Compréhension est Correcte !
+
 
 ### **Si vous vous connectez en tant qu'Admin :**
 - Vous verrez les données CloudStack dans `/dashboard`
@@ -101,7 +101,7 @@ const getFilteredVpsList = () => {
 - Vue limitée à vos VPS personnels
 - Pas d'accès aux données d'autres utilisateurs
 
-## 🔧 Améliorations Suggérées
+##  Améliorations Suggérées
 
 ### **1. Créer un Dashboard Partner Dédié**
 ```javascript
@@ -131,7 +131,7 @@ const partnerVPS = vpsList.filter(vps =>
 );
 ```
 
-## 📱 Test des Différents Rôles
+##  Test des Différents Rôles
 
 ### **Test Admin**
 ```bash
@@ -169,18 +169,5 @@ Password: password123
 # Accès: Ses données personnelles uniquement
 ```
 
-## 🎉 Résumé
-
-**Votre compréhension est parfaitement correcte !**
-
-- **Admin/Subprovider** → `/dashboard` (vue globale CloudStack)
-- **Partner** → `/dashboard` (vue restreinte CloudStack)
-- **User/Client** → `/user-dashboard` (vue personnelle CloudStack)
-
-Les données CloudStack sont maintenant intégrées dans tous ces dashboards selon le niveau d'accès de chaque rôle !
 
 ---
-
-**Status** : ✅ **CONFIRMÉ**  
-**Date** : 1er Septembre 2025  
-**Version** : 1.0
